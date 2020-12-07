@@ -1,6 +1,6 @@
 
 --	Organisateur (Pseudo, NomOrganisateur, PrenomOrganisateur, Mdp) 
---	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJouer, PseudoOrganisateur)
+--	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur)
 --	Tournoi (IdTournoi, Categorie, IdEvenement)  
 --	Equipe (NomEquipe, NiveauEquipe, NomClub, TypeJeu) 
 --	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, NomEquipe)
@@ -43,14 +43,14 @@ create table Evenement(
     LieuEvenement varchar(100) not null,
     DateEvenement date not null,
     TypeJeu varchar(50) not null,
-    NbJouer numeric(2,0) not null,
+    NbJoueur numeric(2,0) not null,
     PseudoOrganisateur varchar(50),
     constraint PK_Evenement primary key(IdEvenement),
     constraint FK_Evenement_Organisateur foreign key(PseudoOrganisateur) 
         references Organisateur(Pseudo) on delete set null,
     constraint FK_Evenement_Sport foreign key(TypeJeu) 
         references Sport(TypeJeu) on delete cascade, 
-    constraint NbJouer_positif check(NbJouer > 0)
+    constraint NbJoueur_positif check(NbJoueur > 0)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create table Tournoi(
@@ -149,99 +149,97 @@ create table Joue(
 
 
 
--- INSERT INTO Organisateur VALUES('sangri','mashra','marwan','123456');
--- INSERT INTO Sport VALUES('foot');
--- INSERT INTO evenement VALUES(NULL,'evenement1','125 avenue Augustin Fliche,34090, Montpellier', '2021-10-12','foot',11,'sangri'); 
-
--- INSERTION ORGANISATEUR
-
-INSERT INTO ORGANISATEUR VALUES('sangri','mashra','marwan',SHA1('123456'));
-Insert into ORGANISATEUR values('Sokz','DOMY','Andre',SHA1('123'));
-Insert into ORGANISATEUR values ('MaradonaGod','Balder','Darius',SHA1('Dadababa1'));
-Insert into ORGANISATEUR values ('Gunnix','Hereinstein','Sophie',SHA1('chopinnocturne20'));
-Insert into ORGANISATEUR values ('BlackMamba','Bryant','Kobe',SHA1('Lakers4ever'));
-
--- INSERTION SPORT
-
-Insert into SPORT values ('Football');
-Insert into SPORT values ('Basket-ball');
-
--- INSERTION EVENEMENT
-
-Insert into EVENEMENT values (null,'Tournois2','Londre','2018-11-04','Football',3,'MaradonaGod');
-Insert into EVENEMENT values (null,'SeriesTournois3','Nice','2015-03-23','Basket-ball',3,'BlackMamba');
-
--- INSERTION TOURNOIS
-
-Insert into TOURNOI values (null,'Adulte',1);
-Insert into TOURNOI values (null,'Femme',2);
-
--- INSERTION EQUIPE
-
-Insert into EQUIPE values('PSG',5,'Paris-St-Germain','Football');
-Insert into EQUIPE values('OM',5,'Olympique-de-Marseille','Football');
-Insert into EQUIPE values('OL',5,'Olympique-Lyonnais','Football');
-Insert into EQUIPE values('REAL',5,'Real Madrid','Football');
-Insert into EQUIPE values('KangooJnr',1,null,'Basket-ball');
-Insert into EQUIPE values('TortueNinja',1,null,'Basket-ball');
-
--- INSERTION JOUEUR
-
-INSERT into JOUEUR values(null,'Neymar','da Silva Santos Júnior','Pro','PSG');
-INSERT into JOUEUR values(null,'Mbappé','Kylian','Pro','PSG');
-INSERT into JOUEUR values(null,'Köpke','Andreas','Pro','PSG');
-INSERT into JOUEUR values(null,'Zinedine','Zidane','Pro','OM');
-INSERT into JOUEUR values(null,'Barthez','Fabien','Pro','OM');
-INSERT into JOUEUR values(null,'Waddle','Chris','Pro','OM');
-INSERT into JOUEUR values(null,'Pernambucano','Juninho','Pro','OL');
-INSERT into JOUEUR values(null,'Gomez','Yohan','Pro','OL');
-INSERT into JOUEUR values(null,'Hartock','Joan','Pro','OL');
-INSERT into JOUEUR values(null,'Vieira','Marcelo','Pro','REAL');
-INSERT into JOUEUR values(null,'Lunin','Andriy','Pro','REAL');
-INSERT into JOUEUR values(null,'Modric','Luka','Pro','REAL');
-INSERT into JOUEUR values(null,'Junior','Napo','loisir','KangooJnr');
-INSERT into JOUEUR values(null,'Junior','Nelson','loisir','KangooJnr');
-INSERT into JOUEUR values(null,'Junior','Archie','loisir','KangooJnr');
-INSERT into JOUEUR values(null,'Splinter','Donatello','loisir','TortueNinja');
-INSERT into JOUEUR values(null,'Splinter','Leonardo','loisir','TortueNinja');
-INSERT into JOUEUR values(null,'Splinter','Raphaelo','loisir','TortueNinja');
-
--- INSERTION INSCRIT
-
-Insert into INSCRIT values(1,"PSG",null);
-Insert into INSCRIT values(1,"OM",null);
-Insert into INSCRIT values(1,"OL",null);
-Insert into INSCRIT values(1,"REAL",null);
-Insert into INSCRIT values(2,"KangooJnr",null);
-Insert into INSCRIT values(2,"TortueNinja",null);
-
--- INSERTION TOUR
-
-Insert into TOUR values(null,"Demi-FinalPRO",1,null,1);
-Insert into TOUR values(null,"FinalPRO",2,null,1);
-Insert into TOUR values(null,"FinalPOUSSIN",1,null,2);
 
 
--- INSERTION TERRAIN
+-- INSERTION Organisateur
 
-Insert into TERRAIN values(null,"Football");
-Insert into TERRAIN values(null,"Football");
-Insert into TERRAIN values(null,"Basket-ball");
+INSERT INTO Organisateur VALUES('sangri','mashra','marwan',SHA1('123456'));
+Insert into Organisateur values('Sokz','DOMY','Andre',SHA1('123'));
+Insert into Organisateur values ('MaradonaGod','Balder','Darius',SHA1('Dadababa1'));
+Insert into Organisateur values ('Gunnix','Hereinstein','Sophie',SHA1('chopinnocturne20'));
+Insert into Organisateur values ('BlackMamba','Bryant','Kobe',SHA1('Lakers4ever'));
 
--- INSERTION POULE
+-- INSERTION Sport
 
-Insert into POULE values(null,"OMvsOL",1,1);
-Insert into POULE values(null,"REALvsPSG",1,2);
-Insert into POULE values(null,"OMvsPSG",2,1);
-Insert into POULE values(null,"KJvsTN",3,3);
+Insert into Sport values ('Football');
+Insert into Sport values ('Basket-ball');
 
--- INSERTION JOUE
+-- INSERTION Evenement
 
-INSERT into JOUE values(1,"OM",1,1,3);
-INSERT into JOUE values(1,"OL",1,1,0);
-INSERT into JOUE values(2,"REAL",1,1,1);
-INSERT into JOUE values(2,"PSG",1,1,4);
-INSERT into JOUE values(3,"OM",1,1,2);
-INSERT into JOUE values(3,"PSG",1,1,2);
-INSERT into JOUE values(4,"KangooJnr",1,1,103);
-INSERT into JOUE values(4,"TortueNinja",1,1,97);
+Insert into Evenement values (null,'Tournois2','Londre','2018-11-04','Football',3,'MaradonaGod');
+Insert into Evenement values (null,'SeriesTournois3','Nice','2015-03-23','Basket-ball',3,'BlackMamba');
+
+-- INSERTION TournoiS
+
+Insert into Tournoi values (null,'Adulte',1);
+Insert into Tournoi values (null,'Femme',2);
+
+-- INSERTION Equipe
+
+Insert into Equipe values('PSG',5,'Paris-St-Germain','Football');
+Insert into Equipe values('OM',5,'Olympique-de-Marseille','Football');
+Insert into Equipe values('OL',5,'Olympique-Lyonnais','Football');
+Insert into Equipe values('REAL',5,'Real Madrid','Football');
+Insert into Equipe values('KangooJnr',1,null,'Basket-ball');
+Insert into Equipe values('TortueNinja',1,null,'Basket-ball');
+
+-- INSERTION Joueur
+
+INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro','PSG');
+INSERT into Joueur values(null,'Mbappé','Kylian','Pro','PSG');
+INSERT into Joueur values(null,'Köpke','Andreas','Pro','PSG');
+INSERT into Joueur values(null,'Zinedine','Zidane','Pro','OM');
+INSERT into Joueur values(null,'Barthez','Fabien','Pro','OM');
+INSERT into Joueur values(null,'Waddle','Chris','Pro','OM');
+INSERT into Joueur values(null,'Pernambucano','Juninho','Pro','OL');
+INSERT into Joueur values(null,'Gomez','Yohan','Pro','OL');
+INSERT into Joueur values(null,'Hartock','Joan','Pro','OL');
+INSERT into Joueur values(null,'Vieira','Marcelo','Pro','REAL');
+INSERT into Joueur values(null,'Lunin','Andriy','Pro','REAL');
+INSERT into Joueur values(null,'Modric','Luka','Pro','REAL');
+INSERT into Joueur values(null,'Junior','Napo','loisir','KangooJnr');
+INSERT into Joueur values(null,'Junior','Nelson','loisir','KangooJnr');
+INSERT into Joueur values(null,'Junior','Archie','loisir','KangooJnr');
+INSERT into Joueur values(null,'Splinter','Donatello','loisir','TortueNinja');
+INSERT into Joueur values(null,'Splinter','Leonardo','loisir','TortueNinja');
+INSERT into Joueur values(null,'Splinter','Raphaelo','loisir','TortueNinja');
+
+-- INSERTION Inscrit
+
+Insert into Inscrit values(1,"PSG",null);
+Insert into Inscrit values(1,"OM",null);
+Insert into Inscrit values(1,"OL",null);
+Insert into Inscrit values(1,"REAL",null);
+Insert into Inscrit values(2,"KangooJnr",null);
+Insert into Inscrit values(2,"TortueNinja",null);
+
+-- INSERTION Tour
+
+Insert into Tour values(null,"Demi-FinalPRO",1,null,1);
+Insert into Tour values(null,"FinalPRO",2,null,1);
+Insert into Tour values(null,"FinalPOUSSIN",1,null,2);
+
+
+-- INSERTION Terrain
+
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Basket-ball");
+
+-- INSERTION Poule
+
+Insert into Poule values(null,"OMvsOL",1,1);
+Insert into Poule values(null,"REALvsPSG",1,2);
+Insert into Poule values(null,"OMvsPSG",2,1);
+Insert into Poule values(null,"KJvsTN",3,3);
+
+-- INSERTION Joue
+
+INSERT into Joue values(1,"OM",1,1,3);
+INSERT into Joue values(1,"OL",1,1,0);
+INSERT into Joue values(2,"REAL",1,1,1);
+INSERT into Joue values(2,"PSG",1,1,4);
+INSERT into Joue values(3,"OM",1,1,2);
+INSERT into Joue values(3,"PSG",1,1,2);
+INSERT into Joue values(4,"KangooJnr",1,1,103);
+INSERT into Joue values(4,"TortueNinja",1,1,97);

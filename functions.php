@@ -24,4 +24,19 @@
         return json_encode($res);
     }
 
+    function getTournoiById($pdo,$params){
+        $q_events=$pdo->prepare('select * from Tournoi where IdTournoi=?');
+
+        $q_events->execute(array($params["id"]));
+        $res = $q_events->fetch();
+        return json_encode($res);
+    }
+
+    function getNbJoueurByIdTournoi($pdo,$params){
+        $q_events=$pdo->prepare('select NbJoueur from Tournoi T,Evenement E where T.IdEvenement=E.IdEvenement and IdTournoi=?');
+              $q_events->execute(array($params["id"]));
+            $res = $q_events->fetch();
+        return json_encode($res);
+    }
+
 ?>
