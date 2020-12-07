@@ -1,33 +1,32 @@
 $( document ).ready(function() {
     
+    myAjax('getAllEvents',{},(data)=>{
+        $.each(data,(index,row)=>{
+            console.log(row['DateEvenement'] + row['LieuEvenement']);
+            
+        });
+    });
+
+});
+
+function myAjax(nomFonction,params,successFonction){
+    params['__x__']=0;
     $.ajax({
         url: 'functions.php',
         type: 'POST',
         dataType:'json',
         data: {
-            'function':'getAllEvents',
-            'params':{
-                'x':5,
-                'y':5
-            }
+            'function':nomFonction,
+            'params':params
         },
-        success: function(data)
-        {
-            // console.log(data);
-            $.each(data,(index,row)=>{
-                console.log(row['DateEvenement'] + row['LieuEvenement']);
-            });
-        },
+        success: successFonction,
         error: printError
     });
-});
-
-
-
+}
 
 function printError(error){    //afficher la page d'erreur 
 		
-		console.error("status: "+error['status']+"\nstatusText: "+error['statusText']);
-		$('body').replaceWith(error['responseText']);
-		
-    }
+    console.error("status: "+error['status']+"\nstatusText: "+error['statusText']);
+    $('body').replaceWith(error['responseText']);
+    
+}
