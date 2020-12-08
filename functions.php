@@ -15,7 +15,7 @@
 
     function getAllEvents($pdo,$params){
         
-        $q_events= $pdo->query('select * from evenement;');
+        $q_events= $pdo->query('SELECT * from Evenement;');
         
         $res = array();
         foreach($q_events as $row){
@@ -25,7 +25,7 @@
     }
 
     function getTournoiById($pdo,$params){
-        $q_events=$pdo->prepare('select * from Tournoi where IdTournoi=?');
+        $q_events=$pdo->prepare('SELECT * from Tournoi where IdTournoi=?');
 
         $q_events->execute(array($params["id"]));
         $res = $q_events->fetch();
@@ -33,7 +33,7 @@
     }
 
     function getNbJoueurByIdTournoi($pdo,$params){
-        $q_events=$pdo->prepare('select NbJoueur from Tournoi T,Evenement E where T.IdEvenement=E.IdEvenement and IdTournoi=?');
+        $q_events=$pdo->prepare('SELECT NbJoueur from Tournoi T,Evenement E where T.IdEvenement=E.IdEvenement and IdTournoi=?');
               $q_events->execute(array($params["id"]));
             $res = $q_events->fetch();
         return json_encode($res);

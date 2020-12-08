@@ -9,7 +9,7 @@
             $pseudo= $_POST['pseudo'];
             $password= $_POST['password'];
             
-            $q_pseudo= $pdo->prepare('Select * from Organisateur where Pseudo=? ;');
+            $q_pseudo= $pdo->prepare('SELECT * from Organisateur where Pseudo=? ;');
             $q_pseudo->execute(array($pseudo));
 
             if($q_pseudo->rowCount()==1){

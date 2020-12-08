@@ -14,7 +14,7 @@
             $password_confirm= $_POST['password_confirm'];
 
 
-            $q_pseudo= $pdo->prepare('Select * from Organisateur where Pseudo=? ;');
+            $q_pseudo= $pdo->prepare('SELECT * from Organisateur where Pseudo=? ;');
             $q_pseudo->execute(array($pseudo));
 
             if($q_pseudo->rowCount()==1){
@@ -28,7 +28,7 @@
             }
 
             else{
-                $q_pseudo= $pdo->prepare('insert into Organisateur values (?,?,?,?) ;');
+                $q_pseudo= $pdo->prepare('INSERT into Organisateur values (?,?,?,?) ;');
                 $q_pseudo->execute(array($pseudo,$nom,$prenom,sha1($password)));
 
                 $_SESSION['message']=array('text'=>"Le compte a été bien ajouté",'class'=>"succes");
