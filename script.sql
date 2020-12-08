@@ -166,12 +166,14 @@ Insert into Sport values ('Basket-ball');
 
 -- INSERTION Evenement
 
-Insert into Evenement values (null,'Tournois2','Londre','2018-11-04','Football',3,'MaradonaGod');
-Insert into Evenement values (null,'SeriesTournois3','Nice','2015-03-23','Basket-ball',3,'BlackMamba');
+Insert into Evenement values (null,'Tournois2','Londre','2020-11-04','Football',3,'MaradonaGod');
+Insert into Evenement values (null,'SeriesTournois3','Nice','2020-03-23','Basket-ball',3,'BlackMamba');
 
 -- INSERTION TournoiS
 
 Insert into Tournoi values (null,'Adulte',1);
+Insert into Tournoi values (null,'Adulte',2);
+Insert into Tournoi values (null,'Femme',1);
 Insert into Tournoi values (null,'Femme',2);
 
 -- INSERTION Equipe
