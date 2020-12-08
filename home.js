@@ -1,4 +1,4 @@
-$( document ).ready(function() { //
+$( document ).ready(function() { 
     addSearchByPeriod();
     myAjax('getAllEvents',{},(data)=>{
         $.each(data,(index,row)=>{
