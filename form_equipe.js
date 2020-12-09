@@ -7,31 +7,36 @@ $( document ).ready(function() {
         NbJoueur=data["NbJoueur"];
         // console.log(NbJoueur);
             html=`<h3 class="text-center" >Formulaire d'Equipe</h3>
-                <from name="form_Equip" method="post">
-                    <label for="nomEquipe">Nom de l'équipe : </label><input type="text" size="50" name="nomEquipe"><br>
-                    <label for="nomClub">Le nom de votre club (si vous en avez un):</label><input type="text" size="50" name="nomClub"><br>
+                <form action="/tournoi_sportif/ajout_equipe.php" method="post" id="formId">
+                    <label for="nomEquipe">Nom de l'équipe : </label>
+                    <input type="text" id="nomEquipe" placeholder="nomEquipe" autocomplete="off" name="nomEquipe" required><br>
+                    <label for="nomClub">Le nom de votre club (si vous en avez un):</label>
+                    <input type="text" id="nomClub" placeholder="nomClub" autocomplete="off" name="nomClub"><br>
                     <h3 class="text-center" >Ajoutez les joueurs</h3>
             `;
-            for (var i =0; i < NbJoueur; i++){
-                j=i+1;
+            for (var i =1; i <= NbJoueur; i++){
                 html+=`
-                    <h5 class="text-center" >Remplissez les infos sur le joueurs n°`+j+`</h5>
-                    <label for="nomJoueur`+j+`">Nom:</label><input type="text" size="50" name="nomJoueur`+j+`"><br>
-                    <label for="prenomJoueur`+j+`">Prenom</label><input type="text" size="50" name="prenomJoueur`+j+`"><br>
-                    <label for="nvJoueur`+j+`">Niveau du joueur</label>
-                    <select name="nvJoueur`+j+`">
+                    <h5 class="text-center" >Remplissez les infos sur le joueurs n°`+i+`</h5>
+                    <label for="nomJoueur`+i+`">Nom:</label>
+                    <input type="text" name="nomJoueur`+i+`" required><br>
+                    <label for="prenomJoueur`+i+`">Prenom</label>
+                    <input type="text" name="prenomJoueur`+i+`" required><br>
+                    <label for="nvJoueur`+i+`">Niveau du joueur</label>
+                    <select name="nvJoueur`+i+`" required>
                         <option value="">Choisissez parmis les options</option>
-                        <option value="1">Jeune</option>
-                        <option value="2">Débutant</option>
-                        <option value="3">Amateur</option>
-                        <option value="4">Semo-Pro</option>
-                        <option value="5">Pro</option>
+                        <option value="Jeune">Jeune</option>
+                        <option value="Débutant">Débutant</option>
+                        <option value="Amateur">Amateur</option>
+                        <option value="Semi-Pro">Semi-Pro</option>
+                        <option value="Pro">Pro</option>
                     </select><br>
                 `; 
-                //label+input pour joueur /concatiner le iavec joueurdans name de input/niveau c'est un input select
+                //label+input pour joueur /concatiner le iavec 
+                //joueurdans name de input/niveau c'est un input select
             }
-            html+=`</form>
-            <button type="submit" form="form1" value="Submit">Finir Formulaire</button>`;
+            html+=`
+            <button type="submit" form="formId" value="Submit">Finir Formulaire</button>
+            </form>`;
     $('body').append(html);
     
     

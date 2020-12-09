@@ -178,12 +178,12 @@ Insert into Tournoi values (null,'Femme',2);
 
 -- INSERTION Equipe
 
-Insert into Equipe values('PSG',5,'Paris-St-Germain','Football');
-Insert into Equipe values('OM',5,'Olympique-de-Marseille','Football');
-Insert into Equipe values('OL',5,'Olympique-Lyonnais','Football');
-Insert into Equipe values('REAL',5,'Real Madrid','Football');
-Insert into Equipe values('KangooJnr',1,null,'Basket-ball');
-Insert into Equipe values('TortueNinja',1,null,'Basket-ball');
+Insert into Equipe values('PSG','pro','Paris-St-Germain','Football');
+Insert into Equipe values('OM','pro','Olympique-de-Marseille','Football');
+Insert into Equipe values('OL','pro','Olympique-Lyonnais','Football');
+Insert into Equipe values('REAL','pro','Real Madrid','Football');
+Insert into Equipe values('KangooJnr','jeune',null,'Basket-ball');
+Insert into Equipe values('TortueNinja','jeune',null,'Basket-ball');
 
 -- INSERTION Joueur
 
