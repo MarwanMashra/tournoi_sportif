@@ -1,5 +1,7 @@
-$( document ).ready(function() { //
+$( document ).ready(function() {
+
     addSearchByPeriod();
+    $('body').append(`<div id="events-container"></div>`);
     myAjax('getAllEvents',{},(data)=>{
         $.each(data,(index,row)=>{
             console.log(row['DateEvenement'] + row['LieuEvenement']);
@@ -12,94 +14,127 @@ $( document ).ready(function() { //
 
 
 function addSearchByPeriod(){
-    let date= getTime();
-    var start = moment().subtract(1, 'days');
-    var end = moment();
+
     let html=`
-        <div>
-            <kdbs
-            >><
-        </div>
-    
+        <div id="search-box">
+            <div id="daterange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 70%">
+                <i class="fa fa-caret-down"></i>
+                &nbsp&nbsp;<span></span>&nbsp&nbsp;
+                <i class="fa fa-calendar"></i>
+            </div>      
+
     `;
-    let html=`
-        <div id="daterange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 70%">
-            <i class="fa fa-caret-down"></i>
-            &nbsp&nbsp;<span></span>&nbsp&nbsp;
-            <i class="fa fa-calendar"></i>
-        </div>
-    `;
-    $('body').append(html);
+    myAjax('getAllSports',{},(sports)=>{
 
-    function writeDate(start,end){
-        $('#daterange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
-    }
+        html+=`
+            <label for="sport-select">Sport:</label>
+            <select name="sport" id="sport-select">
+            <option value="all">Tous</option>
+        `;
+        $.each(sports,(index,sport)=>{
+            html+=`
+                <option value="${sport}">${sport}</option>
+            `;
+        });
+        html+=`
+            </select>
+            <label for="etat-select">Etat:</label>
+            <select name="etat" id="etat-select">
+            <option value="all">Tous</option>
+        `;
 
-    function cb(start, end) {
-        
-        writeDate(start,end);
-        console.log("start: "+start+"\nend: "+end);
-        
-    }
-    var ranges={
-        'Aujourd\'hui': [moment().startOf('day'), moment().endOf('day')],
-        'Hier': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Cette semaine': [moment().startOf('week'), moment().endOf('week')],
-        'La semaine dernière': [moment().subtract(1,'week').startOf('week'), moment().subtract(1,'month').endOf('month')],
-        'Ce mois': [moment().startOf('month'), moment().endOf('month')],
-        'Le mois dernier': [moment().subtract(1,'month').startOf('month'), moment().subtract(1,'month').endOf('month')],
-        'Les 6 derniers mois': [moment().subtract(5,'month'), moment()],
-    }
+        $.each(listEtat,(index,etat)=>{
+            html+=`
+                <option value="${etat}">${etat}</option>
+            `;
+        });
+        html+=`</select></div> `;
+        $('body').append(html);
 
+        function writeDate(start,end){
+            $('#daterange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
+        }
     
-    $('#daterange').daterangepicker({
-        startDate :moment().subtract(-1,'day'),
-        endDate:moment().subtract(-1,'day'),
-        applyButtonClasses: 'applyButton date-range-button',
-        cancelButtonClasses: 'calcelButton date-range-button',
-        ranges: ranges ,
-        "locale": {
-            "format": "DD / MM / YYYY",
-            "separator": " - ",
-            "applyLabel": "Chercher >>",
-            "cancelLabel": "Annuler",
-            "fromLabel": "De",
-            "toLabel": "À",
-            "customRangeLabel": "Personnalisé",
-            "weekLabel": "Semaine",
-            "daysOfWeek": [
-                "LUN.",
-                "MAR.",
-                "MER.",
-                "JEU.",
-                "VEN.",
-                "SAM.",
-                "DIM."
-            ],
-            "monthNames": [
-                "Janvier",
-                "Février",
-                "Mars",
-                "Avril",
-                "Mai",
-                "Juin",
-                "Juillet",
-                "Août",
-                "Septembre",
-                "Octobre",
-                "Novembre",
-                "Décembre"
-            ],
-            "firstDay": 0
-        },
-    }, cb);
+        function cb(start, end) {
+            writeDate(start,end);
+            myAjax('searchEvents',{
+                'start':start.format('YYYY-MM-DD'),
+                'end':end.format('YYYY-MM-DD'),
+                'sport': $('#sport-select').val(),
+                'etat':$('#etat-select').val()
+            },displayEvents);
+            
+        }
+        var ranges={
+            'Aujourd\'hui': [moment(),moment()],
+            'Demain': [moment().add(1, 'days'), moment().add(1, 'days')],
+            'Cette semaine': [moment().startOf('week'), moment().endOf('week')],
+            'La semaine prochaine': [moment().add(1,'week').startOf('week'), moment().add(1,'week').endOf('week')],
+            'Ce mois': [moment().startOf('month'), moment().endOf('month')],
+            'Le mois prochain': [moment().add(1,'month').startOf('month'), moment().add(1,'month').endOf('month')]
+        }
+        let thisYear='En '+moment().year();
+        ranges[thisYear]=[moment().startOf('year'), moment().endOf('year')];
+        
+        $('#daterange').daterangepicker({
+            startDate :moment(),
+            endDate:moment(),
+            applyButtonClasses: 'applyButton date-range-button',
+            cancelButtonClasses: 'calcelButton date-range-button',
+            ranges: ranges ,
+            "locale": {
+                "format": "DD / MM / YYYY",
+                "separator": " - ",
+                "applyLabel": "Chercher >>",
+                "cancelLabel": "Annuler",
+                "fromLabel": "De",
+                "toLabel": "À",
+                "customRangeLabel": "Personnalisé",
+                "weekLabel": "Semaine",
+                "daysOfWeek": [
+                    "LUN.",
+                    "MAR.",
+                    "MER.",
+                    "JEU.",
+                    "VEN.",
+                    "SAM.",
+                    "DIM."
+                ],
+                "monthNames": [
+                    "Janvier",
+                    "Février",
+                    "Mars",
+                    "Avril",
+                    "Mai",
+                    "Juin",
+                    "Juillet",
+                    "Août",
+                    "Septembre",
+                    "Octobre",
+                    "Novembre",
+                    "Décembre"
+                ],
+                "firstDay": 0
+            },
+        }, cb); 
+    
+        cb(moment(), moment()); 
+    
+        $('.applyButton').click(function(){
+            // form.removeForm();
+        });          
+    });
+                   
+}
 
-    cb(start, end); 
-
-    $('.applyButton').click(function(){
-        // form.removeForm();
-    });                        
-
+function displayEvents(listEvents){
+    html=`<div id="events-container">`;
+    $.each(listEvents,(index,event)=>{
+        html+=`<p><b>${event['NomEvenement']}</b> (<i>${event['Etat']}</i>)</p>`;
+        console.log(event);
+    });
+    html+=`</div>`;
+    $('#events-container').replaceWith(html);
 }
 
 function myAjax(nomFonction,params,successFonction){
