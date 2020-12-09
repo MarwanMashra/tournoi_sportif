@@ -13,6 +13,14 @@
         return json_encode(array('res'=>($params['x']+$params['y'])));
     }
 
+    function getSession($pdo,$params){
+        if(isset($_SESSION['login']))
+            return json_encode(array('login'=>$_SESSION['login']));
+        else
+            return json_encode(array('login'=>null));
+    }
+
+
     function getAllEvents($pdo,$params){
         
         $q_events= $pdo->query('SELECT * from Evenement;');
@@ -100,6 +108,18 @@
         }
     
         return json_encode($res);
+    }
+
+    function insertEvent($pdo,$params){
+        $NomEvenement=$params['NomEvenement'];
+        $LieuEvenement=$params['LieuEvenement'];
+        $DateEvenement=$params['DateEvenement'];
+        $TypeJeu=$params['TypeJeu'];
+        $NbJoueur=$params['NbJoueur'];
+        $listTournoi=$params['listTournoi'];
+
+        
+
     }
 
 ?>
