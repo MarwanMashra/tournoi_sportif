@@ -37,6 +37,7 @@
                 $somNiveauJoueur+=transformeNv($_POST['nvJoueur'.$i]);
             }
 
+            $somNiveauJoueur=divUp($somNiveauJoueur,$nbJoueur);
             //on récupère la moyenne de l'équipe
             // $AvgNvJoueur=0;
             // for ($i=0; $i <count($NiveauJoueur); $i++) 
@@ -63,25 +64,26 @@
 
 
                 
-                // if ($_POST['nomClub']!='')
-                // {                        
-                //     $q_Equipe->execute(array($nomEquipe,$AvgNvJoueur,$_POST['nomClub'],$sport));
-                //     // echo "il y a un nom de club";
-                //     // echo $_POST['nomClub'];
-                // }else 
-                // {
-                //     $q_Equipe->execute(array($nomEquipe,$AvgNvJoueur,'NULL',$sport));
-                // // echo "pas de club";
-                // // echo $_POST['nomClub'];
-                // }
+                if ($_POST['nomClub']!='')
+                {                        
+                    $q_Equipe->execute(array($nomEquipe,$somNiveauJoueur,$_POST['nomClub'],$sport));
+                    // echo "il y a un nom de club";
+                    // echo $_POST['nomClub'];
+                }else 
+                {
+                    $q_Equipe->execute(array($nomEquipe,$somNiveauJoueur,'NULL',$sport));
+                // echo "pas de club";
+                // echo $_POST['nomClub'];
+                }
 
-                // $q_Joueur= $pdo->prepare('INSERT into Joueur values (?,?,?,?,?);');
+                $q_Joueur= $pdo->prepare('INSERT into Joueur values (?,?,?,?,?);');
+                $q_Joueur->execute(array('2','HERMET','Quentin','Pro','OM'));
                 // for ($i=1; $i <=$nbJoueur; $i++)
                 // { 
                 //     $q_Joueur->execute(array('NULL',$Joueurs[$i]['nomJoueur'],$Joueurs[$i]['prenomJoueur'],$Joueurs[$i]['nvJoueur'],$nomEquipe));
-                //     // echo $Joueurs['nomJoueur'.$i];
-                //     // echo $Joueurs['prenomJoueur'.$i];
-                //     // echo $Joueurs['nvJoueur'.$i];
+                //     echo $Joueurs['nomJoueur'.$i];
+                //     echo $Joueurs['prenomJoueur'.$i];
+                //     echo $Joueurs['nvJoueur'.$i];
                 // }
                 $_SESSION['message']=array('text'=>"L'équipe a été bien ajouté",'class'=>"succes");
                     header('Location:formulaire_equipe.php');
@@ -90,6 +92,11 @@
 
     }else header('Location:formulaire_equipe.php');
 
+    function divUp($a,$b){
+        if ($a%$b!=0) {
+            return intdiv($a, $b)+1;
+        }else return intdiv($a, $b);
+    }
 
     function transformeNv($var)
     {
