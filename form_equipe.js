@@ -7,7 +7,7 @@ $( document ).ready(function() {
         NbJoueur=data["NbJoueur"];
         // console.log(NbJoueur);
             html=`<h3 class="text-center" >Formulaire d'Equipe</h3>
-                <form action="/tournoi_sportif/ajout_equipe.php" method="post" id="formId">
+                <form action="ajout_equipe.php" method="post" id="formId">
                     <label for="nomEquipe">Nom de l'équipe : </label>
                     <input type="text" id="nomEquipe" placeholder="nomEquipe" autocomplete="off" name="nomEquipe" required><br>
                     <label for="nomClub">Le nom de votre club (si vous en avez un):</label>
