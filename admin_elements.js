@@ -109,7 +109,7 @@ function addTournoi(){
         <label class="tournoi${i}" for="categorie-input${i}" id="categorie-label${i}">Categorie:</label>
 
         <select name="categorie-input${i}" id="categorie-input${i}" class="tournoi${i} categorie-input" required>
-            <option value="">-- Choisis un sport --</option>
+            <option value="">-- Choisissez un sport --</option>
 
     `;
     $.each(listCategorie,(index,categorie)=>{

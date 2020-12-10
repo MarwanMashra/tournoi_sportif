@@ -2,13 +2,12 @@
 --	Organisateur (Pseudo, NomOrganisateur, PrenomOrganisateur, Mdp) 
 --	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur)
 --	Tournoi (IdTournoi, Categorie, IdEvenement)  
---	Equipe (NomEquipe, NiveauEquipe, NomClub, TypeJeu) 
---	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, NomEquipe)
---	Inscrit (IdTournoi, NomEquipe, estValide) 
+--	Equipe (IdEquipe, NomEquipe, NiveauEquipe, NomClub, IdTournoi,InscriptionValidee) 
+--	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, IdEquipe)
 --	Tour (IdTour, NomTour, NumTour, Etat, IdTournoi) 
 --	Poule (IdPoule, NomPoule, IdTour, NumTerrain) 
 --	Terrain (NumTerrain, TypeJeu)
---	Joue (IdPoule, NomEquipe, NbMatch, NbSet, NbPoint) 
+--	Joue (IdPoule, IdEquipe, NbMatch, NbSet, NbPoint) 
 --	Sport(TypeJeu)
 
 
@@ -16,7 +15,7 @@ drop table if exists Joue;
 drop table if exists Poule;
 drop table if exists Terrain;
 drop table if exists Tour;
-drop table if exists Inscrit;
+-- drop table if exists Inscrit;
 drop table if exists Joueur;
 drop table if exists Equipe;
 drop table if exists Tournoi;
@@ -64,13 +63,16 @@ create table Tournoi(
 
 
 create table Equipe(
-    NomEquipe varchar(50),
-    NiveauEquipe numeric(1,0),
+    IdEquipe int AUTO_INCREMENT,
+    NomEquipe varchar(50) not null,
+    NiveauEquipe numeric(1,0) not null,
     NomClub varchar(50),
-    TypeJeu varchar(50) not null,
-    constraint PK_Equipe primary key(NomEquipe),
-    constraint FK_Equipe_Sport foreign key(TypeJeu) 
-        references Sport(TypeJeu) on delete cascade, 
+    IdTournoi int,
+    InscriptionValidee BOOLEAN default false,
+    constraint PK_Equipe primary key(IdEquipe),
+    constraint FK_Equipe_Tournoi foreign key(IdTournoi) 
+        references Tournoi(IdTournoi) on delete cascade,
+    CONSTRAINT UNIQUE_NomEquipe_IdTournoi UNIQUE(NomEquipe,IdTournoi),
     constraint DOM_NiveauEquipe check(NiveauEquipe between 1 and 5)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -78,25 +80,25 @@ create table Joueur(
     IdJoueur int AUTO_INCREMENT,
     NomJoueur varchar(50) not null,
     PrenomJoueur varchar(50) not null,
-    NiveauJoueur varchar(20),
-    NomEquipe varchar(50) not null,
+    NiveauJoueur varchar(20) not null,
+    IdEquipe int not null,
     constraint PK_Joueur primary key(IdJoueur),
-    constraint FK_Joueur_Equipe foreign key(NomEquipe) 
-        references Equipe(NomEquipe) on delete cascade, 
+    constraint FK_Joueur_Equipe foreign key(IdEquipe) 
+        references Equipe(IdEquipe) on delete cascade, 
     constraint DOM_NiveauJoueur check
-        (NiveauJoueur in ('loisir', 'départemental','régional','N3','N2','Elite','Pro'))
+        (NiveauJoueur in ('loisir', 'départemental','régional','Elite','Pro'))
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-create table Inscrit(
-    IdTournoi int,
-    NomEquipe varchar(50), 
-    estValide BOOLEAN default false,
-    constraint PK_Inscrit primary key(IdTournoi,NomEquipe),
-    constraint FK_Inscrit_Tournoi foreign key(IdTournoi) 
-        references Tournoi(IdTournoi) on delete cascade, 
-    constraint FK_Inscrit_Equipe foreign key(NomEquipe)
-        references Equipe(NomEquipe) on delete cascade
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- create table Inscrit(
+--     IdTournoi int,
+--     IdEquipe int, 
+--     estValide BOOLEAN default false,
+--     constraint PK_Inscrit primary key(IdTournoi,IdEquipe),
+--     constraint FK_Inscrit_Tournoi foreign key(IdTournoi) 
+--         references Tournoi(IdTournoi) on delete cascade, 
+--     constraint FK_Inscrit_Equipe foreign key(IdEquipe)
+--         references Equipe(IdEquipe) on delete cascade
+-- )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create table Tour(
     IdTour int AUTO_INCREMENT,
@@ -133,15 +135,15 @@ create table Poule(
 
 create table Joue(
     IdPoule int,
-    NomEquipe varchar(50),
+    IdEquipe int,
     NbMatch numeric(3,0) default 0,
     NbSet numeric(3,0) default 0,
     NbPoint numeric(3,0) default 0,
-    constraint PK_Joue primary key(IdPoule,NomEquipe),
+    constraint PK_Joue primary key(IdPoule,IdEquipe),
     constraint FK_Joue_Poule foreign key(IdPoule) 
         references Poule(IdPoule) on delete cascade, 
-    constraint FK_Joue_Equipe foreign key(NomEquipe) 
-        references Equipe(NomEquipe) on delete cascade,
+    constraint FK_Joue_Equipe foreign key(IdEquipe) 
+        references Equipe(IdEquipe) on delete cascade,
     constraint NbMatch_positif check(NbMatch >= 0),
     constraint NbSet_positif check(NbSet >= 0),
     constraint NbPoint_positif check(NbPoint >= 0)
@@ -178,42 +180,42 @@ Insert into Tournoi values (null,'Femme',2);
 
 -- INSERTION Equipe
 
-Insert into Equipe values('PSG','pro','Paris-St-Germain','Football');
-Insert into Equipe values('OM','pro','Olympique-de-Marseille','Football');
-Insert into Equipe values('OL','pro','Olympique-Lyonnais','Football');
-Insert into Equipe values('REAL','pro','Real Madrid','Football');
-Insert into Equipe values('KangooJnr','jeune',null,'Basket-ball');
-Insert into Equipe values('TortueNinja','jeune',null,'Basket-ball');
+Insert into Equipe values(null,'PSG',1,'Paris-St-Germain',1,false);
+Insert into Equipe values(null,'OM',1,'Olympique-de-Marseille',1,false);
+Insert into Equipe values(null,'OL',1,'Olympique-Lyonnais',1,false);
+Insert into Equipe values(null,'REAL',1,'Real Madrid',1,false);
+Insert into Equipe values(null,'KangooJnr',5,null,2,false);
+Insert into Equipe values(null,'TortueNinja',5,null,2,false);
 
 -- INSERTION Joueur
 
-INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro','PSG');
-INSERT into Joueur values(null,'Mbappé','Kylian','Pro','PSG');
-INSERT into Joueur values(null,'Köpke','Andreas','Pro','PSG');
-INSERT into Joueur values(null,'Zinedine','Zidane','Pro','OM');
-INSERT into Joueur values(null,'Barthez','Fabien','Pro','OM');
-INSERT into Joueur values(null,'Waddle','Chris','Pro','OM');
-INSERT into Joueur values(null,'Pernambucano','Juninho','Pro','OL');
-INSERT into Joueur values(null,'Gomez','Yohan','Pro','OL');
-INSERT into Joueur values(null,'Hartock','Joan','Pro','OL');
-INSERT into Joueur values(null,'Vieira','Marcelo','Pro','REAL');
-INSERT into Joueur values(null,'Lunin','Andriy','Pro','REAL');
-INSERT into Joueur values(null,'Modric','Luka','Pro','REAL');
-INSERT into Joueur values(null,'Junior','Napo','loisir','KangooJnr');
-INSERT into Joueur values(null,'Junior','Nelson','loisir','KangooJnr');
-INSERT into Joueur values(null,'Junior','Archie','loisir','KangooJnr');
-INSERT into Joueur values(null,'Splinter','Donatello','loisir','TortueNinja');
-INSERT into Joueur values(null,'Splinter','Leonardo','loisir','TortueNinja');
-INSERT into Joueur values(null,'Splinter','Raphaelo','loisir','TortueNinja');
+INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',1);
+INSERT into Joueur values(null,'Mbappé','Kylian','Pro',1);
+INSERT into Joueur values(null,'Köpke','Andreas','Pro',1);
+INSERT into Joueur values(null,'Zinedine','Zidane','Pro',2);
+INSERT into Joueur values(null,'Barthez','Fabien','Pro',2);
+INSERT into Joueur values(null,'Waddle','Chris','Pro',2);
+INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',3);
+INSERT into Joueur values(null,'Gomez','Yohan','Pro',3);
+INSERT into Joueur values(null,'Hartock','Joan','Pro',3);
+INSERT into Joueur values(null,'Vieira','Marcelo','Pro',4);
+INSERT into Joueur values(null,'Lunin','Andriy','Pro',4);
+INSERT into Joueur values(null,'Modric','Luka','Pro',4);
+INSERT into Joueur values(null,'Junior','Napo','loisir',5);
+INSERT into Joueur values(null,'Junior','Nelson','loisir',5);
+INSERT into Joueur values(null,'Junior','Archie','loisir',5);
+INSERT into Joueur values(null,'Splinter','Donatello','loisir',6);
+INSERT into Joueur values(null,'Splinter','Leonardo','loisir',6);
+INSERT into Joueur values(null,'Splinter','Raphaelo','loisir',6);
 
 -- INSERTION Inscrit
 
-Insert into Inscrit values(1,"PSG",null);
-Insert into Inscrit values(1,"OM",null);
-Insert into Inscrit values(1,"OL",null);
-Insert into Inscrit values(1,"REAL",null);
-Insert into Inscrit values(2,"KangooJnr",null);
-Insert into Inscrit values(2,"TortueNinja",null);
+-- Insert into Inscrit values(1,1,null);
+-- Insert into Inscrit values(1,2,null);
+-- Insert into Inscrit values(1,3,null);
+-- Insert into Inscrit values(1,4,null);
+-- Insert into Inscrit values(2,5,null);
+-- Insert into Inscrit values(2,6,null);
 
 -- INSERTION Tour
 
@@ -237,11 +239,11 @@ Insert into Poule values(null,"KJvsTN",3,3);
 
 -- INSERTION Joue
 
-INSERT into Joue values(1,"OM",1,1,3);
-INSERT into Joue values(1,"OL",1,1,0);
-INSERT into Joue values(2,"REAL",1,1,1);
-INSERT into Joue values(2,"PSG",1,1,4);
-INSERT into Joue values(3,"OM",1,1,2);
-INSERT into Joue values(3,"PSG",1,1,2);
-INSERT into Joue values(4,"KangooJnr",1,1,103);
-INSERT into Joue values(4,"TortueNinja",1,1,97);
+INSERT into Joue values(1,2,1,1,3);
+INSERT into Joue values(1,3,1,1,0);
+INSERT into Joue values(2,4,1,1,1);
+INSERT into Joue values(2,1,1,1,4);
+INSERT into Joue values(3,2,1,1,2);
+INSERT into Joue values(3,1,1,1,2);
+INSERT into Joue values(4,5,1,1,103);
+INSERT into Joue values(4,6,1,1,97);

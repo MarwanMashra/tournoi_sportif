@@ -3,6 +3,11 @@ $( document ).ready(function() {
     idTournoi= 1;
 
     myAjax('getNbJoueurByIdTournoi',{'id' : idTournoi},(data)=>{
+
+        optionNiveau=`<option value="">-- Choisissez un niveau --</option>`;
+        $.each(listNiveau,(index,niveau)=>{
+            optionNiveau+=`<option value="${niveau}">${niveau}</option>`;
+        });
         
         NbJoueur=data["NbJoueur"];
         // console.log(NbJoueur);
@@ -22,13 +27,9 @@ $( document ).ready(function() {
                     <label for="prenomJoueur`+i+`">Prenom</label>
                     <input type="text" name="prenomJoueur`+i+`" required><br>
                     <label for="nvJoueur`+i+`">Niveau du joueur</label>
+                    
                     <select name="nvJoueur`+i+`" required>
-                        <option value="">Choisissez parmis les options</option>
-                        <option value="Jeune">Jeune</option>
-                        <option value="Débutant">Débutant</option>
-                        <option value="Amateur">Amateur</option>
-                        <option value="Semi-Pro">Semi-Pro</option>
-                        <option value="Pro">Pro</option>
+                    ${optionNiveau}
                     </select><br>
                 `; 
                 //label+input pour joueur /concatiner le iavec 
