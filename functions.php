@@ -62,8 +62,8 @@
         $endDate=$params['end'];
         $sport=$params['sport'];
         $etat=$params['etat'];
-
-        $pret_event= "SELECT E.IdEvenement from Evenement E where not exists (SELECT * from Tournoi Tn where exists (SELECT * from Tour Tr where Tn.IdEvenement=E.IdEvenement and Tn.IdTournoi=Tr.IdTournoi and Etat<>'pret'))";
+        
+        $bientot_event= "SELECT E.IdEvenement from Evenement E where not exists (SELECT * from Tournoi Tn where exists (SELECT * from Tour Tr where Tn.IdEvenement=E.IdEvenement and Tn.IdTournoi=Tr.IdTournoi and Etat<>'bientot'))";
         $encours_event= "SELECT E.IdEvenement from Evenement E where exists (SELECT * from Tournoi Tn where exists (SELECT * from Tour Tr where Tn.IdEvenement=E.IdEvenement and Tn.IdTournoi=Tr.IdTournoi and Etat<>'encours'))";
         $termine_event= "SELECT E.IdEvenement from Evenement E where not exists (SELECT * from Tournoi Tn where exists (SELECT * from Tour Tr where Tn.IdEvenement=E.IdEvenement and Tn.IdTournoi=Tr.IdTournoi and Etat<>'termine'))";
 
@@ -87,14 +87,14 @@
                 $row['Tournoi'][]= $tournoi;
             }
 
-            $q_pret_event=$pdo->prepare("SELECT * from Evenement where IdEvenement=? and IdEvenement in (".$pret_event.")");
-            $q_pret_event->execute(array($row['IdEvenement']));
+            $q_bientot_event=$pdo->prepare("SELECT * from Evenement where IdEvenement=? and IdEvenement in (".$bientot_event.")");
+            $q_bientot_event->execute(array($row['IdEvenement']));
             $q_encours_event=$pdo->prepare("SELECT * from Evenement where IdEvenement=? and IdEvenement in (".$encours_event.")");
             $q_encours_event->execute(array($row['IdEvenement']));
             $q_termine_event=$pdo->prepare("SELECT * from Evenement where IdEvenement=? and IdEvenement in (".$termine_event.")");
             $q_termine_event->execute(array($row['IdEvenement']));
-            if($q_pret_event->rowCount()==1){
-                $row['Etat']='pret';
+            if($q_bientot_event->rowCount()==1){
+                $row['Etat']='bientot';
             }else if($q_encours_event->rowCount()==1){
                 $row['Etat']='encours';
             }else if($q_termine_event->rowCount()==1){
@@ -119,6 +119,31 @@
         $listTournoi=$params['listTournoi'];
 
         
+
+    }
+
+    function getEquipeByIdTournoi($pdo,$params){
+        
+        $q_equipe= $pdo->prepare("SELECT * from Equipe where IdTournoi=? and InscriptionValidee=true;");
+        $q_equipe->execute(array($params['idTournoi']));
+        
+        $res = array();
+        foreach($q_equipe as $row){
+            $res[] = $row;
+        }
+        return json_encode($res);
+    }
+
+    function getLastTour($pdo,$params){
+        //
+        $q_tour= $pdo->prepare("SELECT * from Tour T1 where IdTournoi=? and Etat='termine' and NumTour=(SELECT max(NumTour) from Tour T2 where T2.IdTournoi=T1.IdTournoi and Etat='termine' );");
+        $q_tour->execute(array($params['idTournoi']));
+        $res=null;
+        if($q_tour->rowCount()==1){
+            $res=$q_tour->fetch();
+        }
+
+        return json_encode(array('lastTour'=>$res));
 
     }
 
