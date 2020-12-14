@@ -149,15 +149,16 @@ function sendEvent(){
             'DateEvenement':DateEvenement,
             'TypeJeu':TypeJeu,
             'NbJoueur':NbJoueur,
-            'listTournoi':listTournoi
+            'listTournoi':listTournoi,
+            'pseudo':login['pseudo']
         }
-        // console.log(params);
-        // addCreateEvent();
+
         myAjax('insertEvent',params,(response)=>{
-            if(response['message']==""){
+            if(response['class']=="succes"){
                 addCreateEvent();  //on peut aussi afficher un message pour dire que l'evenement a été bien créé
             }else{
                 $('#form-error').text(`*${response['message']}`);
+
             }
         });
     }

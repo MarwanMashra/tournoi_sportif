@@ -1,10 +1,10 @@
 
 --	Organisateur (Pseudo, NomOrganisateur, PrenomOrganisateur, Mdp) 
---	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur)
+--	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur,Statue)
 --	Tournoi (IdTournoi, Categorie, IdEvenement)  
 --	Equipe (IdEquipe, NomEquipe, NiveauEquipe, NomClub, IdTournoi,InscriptionValidee) 
 --	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, IdEquipe)
---	Tour (IdTour, NomTour, NumTour, Etat, IdTournoi) 
+--	Tour (IdTour, NomTour, NumTour, Statue, IdTournoi) 
 --	Poule (IdPoule, NomPoule, IdTour, NumTerrain) 
 --	Terrain (NumTerrain, TypeJeu)
 --	Joue (IdPoule, IdEquipe, NbMatch, NbSet, NbPoint) 
@@ -15,7 +15,6 @@ drop table if exists Joue;
 drop table if exists Poule;
 drop table if exists Terrain;
 drop table if exists Tour;
--- drop table if exists Inscrit;
 drop table if exists Joueur;
 drop table if exists Equipe;
 drop table if exists Tournoi;
@@ -44,11 +43,13 @@ create table Evenement(
     TypeJeu varchar(50) not null,
     NbJoueur numeric(2,0) not null,
     PseudoOrganisateur varchar(50),
+    Statue varchar(10) default 'bientot',
     constraint PK_Evenement primary key(IdEvenement),
     constraint FK_Evenement_Organisateur foreign key(PseudoOrganisateur) 
         references Organisateur(Pseudo) on delete set null,
     constraint FK_Evenement_Sport foreign key(TypeJeu) 
         references Sport(TypeJeu) on delete cascade, 
+    constraint DOM_Statue_Evenement check(Statue in ('bientot','encours','termine')),
     constraint NbJoueur_positif check(NbJoueur > 0)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -104,12 +105,12 @@ create table Tour(
     IdTour int AUTO_INCREMENT,
     NomTour varchar(100),
     NumTour int,
-    Etat varchar(10) default 'bientot',
+    Statue varchar(10) default 'bientot',
     IdTournoi int,
     constraint PK_Tour primary key(IdTour),
     constraint FK_Tour_Tournoi foreign key(IdTournoi)
         references Tournoi(IdTournoi) on delete cascade,
-    constraint DOM_Etat check(Etat in ('bientot','encours','termine')),
+    constraint DOM_Statue_Tour check(Statue in ('bientot','encours','termine')),
     constraint NumTour_positif check(NumTour > 0)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -168,8 +169,8 @@ Insert into Sport values ('Basket-ball');
 
 -- INSERTION Evenement
 
-Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod');
-Insert into Evenement values (null,'SeriesTournois3','Nice','2020-12-10','Basket-ball',3,'BlackMamba');
+Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','encours');
+Insert into Evenement values (null,'SeriesTournois3','Nice','2020-12-10','Basket-ball',3,'BlackMamba','bientot');
 
 -- INSERTION TournoiS
 
@@ -280,7 +281,7 @@ INSERT into Joueur values(null,'Splinter','Raphaelo','loisir',18);
 
 -- INSERTION Tour
 
--- Insert into Tour values(null,"quart-FinalPRO",1,'termine',1);
+Insert into Tour values(null,"quart-FinalPRO",1,'termine',1);
 -- Insert into Tour values(null,"Demi-FinalPRO",2,'termine',1);
 -- Insert into Tour values(null,"FinalPRO",3,'termine',1);
 
@@ -292,22 +293,39 @@ INSERT into Joueur values(null,'Splinter','Raphaelo','loisir',18);
 
 Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Basket-ball");
 
 -- INSERTION Poule
 
--- Insert into Poule values(null,"OMvsOL",1,1);
--- Insert into Poule values(null,"REALvsPSG",1,2);
--- Insert into Poule values(null,"OMvsPSG",2,1);
--- Insert into Poule values(null,"KJvsTN",3,3);
+Insert into Poule values(null,"Poule 1",1,1);
+Insert into Poule values(null,"Poule 2",1,2);
+Insert into Poule values(null,"Poule 3",1,3);
+Insert into Poule values(null,"Poule 4",1,4);
 
 -- INSERTION Joue
 
--- INSERT into Joue values(1,2,1,1,3);
--- INSERT into Joue values(1,3,1,1,0);
--- INSERT into Joue values(2,4,1,1,1);
--- INSERT into Joue values(2,1,1,1,4);
--- INSERT into Joue values(3,2,1,1,2);
--- INSERT into Joue values(3,1,1,1,2);
--- INSERT into Joue values(4,5,1,1,103);
--- INSERT into Joue values(4,6,1,1,97);
+INSERT into Joue values(1,1,2,1,3);
+INSERT into Joue values(1,2,1,1,10);
+INSERT into Joue values(1,3,1,3,1);
+INSERT into Joue values(1,4,1,5,4);
+
+INSERT into Joue values(2,5,1,1,2);
+INSERT into Joue values(2,6,2,2,2);
+INSERT into Joue values(2,7,1,8,103);
+INSERT into Joue values(2,8,2,1,97);
+
+INSERT into Joue values(3,9,1,1,97);
+INSERT into Joue values(3,10,1,3,12);
+INSERT into Joue values(3,11,2,1,1);
+INSERT into Joue values(3,12,1,1,4);
+
+INSERT into Joue values(4,13,1,1,20);
+INSERT into Joue values(4,14,2,1,2);
+INSERT into Joue values(4,15,1,1,103);
+INSERT into Joue values(4,16,1,1,97);

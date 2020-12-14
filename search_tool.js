@@ -24,14 +24,14 @@ function addSearchByPeriod(){
         });
         html+=`
             </select>
-            <label for="etat-select">Etat:</label>
-            <select name="etat" id="etat-select">
+            <label for="statue-select">Statue:</label>
+            <select name="statue" id="statue-select">
             <option value="all">Tous</option>
         `;
 
-        $.each(listEtat,(index,etat)=>{
+        $.each(listStatue,(index,statue)=>{
             html+=`
-                <option value="${etat}">${etat}</option>
+                <option value="${statue}">${statue}</option>
             `;
         });
         html+=`</select></div> `;
@@ -47,7 +47,7 @@ function addSearchByPeriod(){
                 'start':start.format('YYYY-MM-DD'),
                 'end':end.format('YYYY-MM-DD'),
                 'sport': $('#sport-select').val(),
-                'etat':$('#etat-select').val()
+                'statue':$('#statue-select').val()
             },displayEvents);
             
         }
@@ -116,7 +116,7 @@ function addSearchByPeriod(){
 function displayEvents(listEvents){
     html=`<div id="events-container">`;
     $.each(listEvents,(index,event)=>{
-        html+=`<p><b>${event['NomEvenement']}</b> (<i>${event['Etat']}</i>)</p>`;
+        html+=`<p><b>${event['NomEvenement']}</b> (<i>${event['statue']}</i>)</p>`;
         console.log(event);
     });
     html+=`</div>`;

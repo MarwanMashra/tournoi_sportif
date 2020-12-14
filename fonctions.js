@@ -68,3 +68,12 @@ function printError(error){    //afficher la page d'erreur
     $('body').replaceWith(error['responseText']);
     
 }
+
+ Array.prototype.isUnique = function() {
+    this.sort();    
+    for ( var i = 1; i < this.length; i++ ){
+        if(this[i-1] == this[i])
+            return false;
+    }
+    return true;
+}

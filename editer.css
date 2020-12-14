@@ -1,0 +1,38 @@
+.poule-section{
+    float: left;
+    display: inline;
+}
+.poule-container{
+    float: bottom;
+    display:flex;
+    align-content: flex;
+    
+}
+.liste-equipe{
+    padding: 0;
+    /* background-color: aqua; */
+    min-height: 3rem;
+    margin-bottom: 1rem;
+}
+.equipe{
+    cursor: grab;
+}
+
+.equipe:active{
+    cursor: grabbing;
+}
+
+.drop-placeholder {
+    background-color: lightgray;
+    height: 1.5em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 1.2em;
+}
+
+.liste-equipe{
+    list-style: none;
+}
+.error{
+    color: #DC143C;
+}

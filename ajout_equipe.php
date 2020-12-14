@@ -60,9 +60,12 @@
                     $q_Equipe->execute(array($nomEquipe,$somNiveauJoueur,'NULL',$sport));
                 }
 
-                $q_IdEquipe= $pdo->prepare('SELECT IdEquipe from Equipe where NomEquipe=? and IdTournoi=? ;');
-                $q_IdEquipe->execute(array($nomEquipe,$IdTournoi));
+                $q_IdEquipe= $pdo->query('SELECT IdEquipe FROM Equipe WHERE IdEquipe=LAST_INSERT_ID();');
                 $IdEquipe= $q_IdEquipe->fetch()['IdEquipe'];
+
+                // $q_IdEquipe= $pdo->prepare('SELECT IdEquipe from Equipe where NomEquipe=? and IdTournoi=? ;');
+                // $q_IdEquipe->execute(array($nomEquipe,$IdTournoi));
+                // $IdEquipe= $q_IdEquipe->fetch()['IdEquipe'];
 
                 $q_Joueur= $pdo->prepare('INSERT into Joueur values (null,?,?,?,?);');
 
@@ -70,8 +73,8 @@
                     $q_Joueur->execute(array($Joueur['nomJoueur'],$Joueur['prenomJoueur'],$Joueur['nvJoueur'],$IdEquipe));
                 }
                  
-                $_SESSION['message']=array('text'=>"L'équipe a été bien ajouté",'class'=>"succes");
-                    header('Location:formulaire_equipe.php');
+                $_SESSION['message']=array('text'=>"L'équipe a bien été ajouté ",'class'=>"succes");
+                header('Location:formulaire_equipe.php');
  
                 $pdo->commit();
             }
