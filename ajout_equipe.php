@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $IdTournoi= 1; // faudra récup IdTournoi actuelle avec celui de form_equipe.Js aussi
+    $IdTournoi= $_POST['idTournoi']; // faudra récup IdTournoi actuelle avec celui de form_equipe.Js aussi
     require("pdo.php");
 
 
@@ -41,7 +41,7 @@
 
         if($q_deja_inscrit->rowCount()==1){
             $_SESSION['message']=array('text'=>"Cette équipe est déjà inscrit dans ce tournoi",'class'=>"error");
-            header('Location:formulaire_equipe.php');
+            header("Location:formulaire_equipe.php?id=$IdTournoi&codeMSG=0");
         }
         else{   
             try{   //je démarre une transaction
@@ -74,14 +74,14 @@
                 }
                  
                 $_SESSION['message']=array('text'=>"L'équipe a bien été ajouté ",'class'=>"succes");
-                header('Location:formulaire_equipe.php');
+                header("Location:formulaire_equipe.php?id=$IdTournoi&codeMSG=1");
  
                 $pdo->commit();
             }
             catch(PDOException $e){
                 $pdo->rollBack();
                 $_SESSION['message']=array('text'=>"Un problàme s'est prooduit",'class'=>"error");
-                header('Location:formulaire_equipe.php');  
+                header("Location:formulaire_equipe.php?id=$IdTournoi&codeMSG=2");  
             }
             
         }

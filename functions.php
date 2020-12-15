@@ -101,7 +101,7 @@
                 $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
                 $pdo->beginTransaction();
             
-                $q_event= $pdo->prepare('INSERT into Evenement values (null,:nomE,:lieuE,:dateE,:sport,:nbJ,:pseudo,null);');
+                $q_event= $pdo->prepare("INSERT into Evenement values (null,:nomE,:lieuE,:dateE,:sport,:nbJ,:pseudo,'bientot');");
                 $data=array('nomE'=>$NomEvenement,'lieuE'=>$LieuEvenement,'dateE'=>$DateEvenement,'sport'=>$TypeJeu,'nbJ'=>$NbJoueur,'pseudo'=>$pseudo);
                 $q_event->execute($data);
                 
@@ -174,18 +174,17 @@
         $q_tour_encours->execute(array($params['idTournoi']));
         if($q_tour_encours->rowCount()==1){
             $res['tour']=$q_tour_encours->fetch();
-            return json_encode($res);
         }
 
 
-        //cas 2
-        $q_tour_bientot= $pdo->prepare("SELECT * from Tour T1 where T1.IdTournoi=? and T1.Statue='bientot' and 
-                                        T1.NumTour=(SELECT min(NumTour) from Tour T2 where T2.IdTournoi=T1.IdTournoi 
-                                        and T2.Statue='bientot' );");  
-        $q_tour_bientot->execute(array($params['idTournoi']));
-        if($q_tour_bientot->rowCount()==1){
-            $res['tour']=$q_tour_bientot->fetch();
-        }
+        // //cas 2
+        // $q_tour_bientot= $pdo->prepare("SELECT * from Tour T1 where T1.IdTournoi=? and T1.Statue='bientot' and 
+        //                                 T1.NumTour=(SELECT min(NumTour) from Tour T2 where T2.IdTournoi=T1.IdTournoi 
+        //                                 and T2.Statue='bientot' );");  
+        // $q_tour_bientot->execute(array($params['idTournoi']));
+        // if($q_tour_bientot->rowCount()==1){
+        //     $res['tour']=$q_tour_bientot->fetch();
+        // }
 
         //cas 3
     
@@ -213,7 +212,7 @@
         foreach($listPoule as $poule){
             $nomPouleVide|= $poule['NomPoule']=="";
         }
-        if(!$nomPouleVide && count($listPoule)>1){
+        if(!$nomPouleVide && count($listPoule)>0){
             try{   //je démarre une transaction
                 
                 $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
@@ -310,5 +309,60 @@
             return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
         }
     }
+
+    function CheckTypeTournoi($pdo,$params){
+        $IdTournoi=$params['idTournoi'];
+        $q_both= $pdo->prepare("SELECT * from Tournoi T1 join Evenement E on E.IdEvenement=T1.IdEvenement where (T1.IdEvenement,T1.Categorie) in
+                                    (SELECT T2.IdEvenement,T2.Categorie from Tournoi T2 where T2.IdTournoi=?)");
+  
+        $q_both->execute(array($IdTournoi));
+        $res = array();
+        $thisTournoi=null;
+        $otherTournoi=null;
+        foreach($q_both as $row){               //on est sur que pour un evenement et une catégorie, il y max deux tournois (principal & consultante)
+            if($row['IdTournoi']==$IdTournoi)
+                $thisTournoi= $row;
+            else
+                $otherTournoi= $row;
+        }
+        return json_encode(array('thisTournoi'=>$thisTournoi,'otherTournoi'=>$otherTournoi));
+    }
+
+    function createTournoiConsultante($pdo,$params){
+        $listEquipe= $params['listEquipe'];
+
+        try{   //je démarre une transaction
+                
+            $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+            
+            
+            $q_principal= $pdo->prepare("SELECT Categorie,IdEvenement from Tournoi where IdTournoi=? ;");
+            $q_principal->execute(array($listEquipe[0]['IdTournoi']));
+            $row= $q_principal->fetch();
+            $Categorie= $row['Categorie'];
+            $IdEvenement= $row['IdEvenement'];
+
+            $q_tournoi_consultante= $pdo->prepare("INSERT into Tournoi values (null,?,'consultante',?) ;");
+            $q_tournoi_consultante->execute(array($Categorie,$IdEvenement));
+
+            $q_IdTournoi= $pdo->query('SELECT IdTournoi FROM Tournoi WHERE IdTournoi=LAST_INSERT_ID();');
+            $IdTournoi= $q_IdTournoi->fetch()['IdTournoi'];
+
+            foreach($listEquipe as $equipe){
+                $q_equipe= $pdo->prepare("UPDATE Equipe SET IdTournoi=? where IdEquipe=?;");
+                $q_equipe->execute(array($IdTournoi,$equipe['IdEquipe']));
+            }
+            
+            $pdo->commit();
+            return json_encode(array('message'=>"Le tournoi consultante a bien été créé ",'class'=>"succes"));
+
+        }
+        catch(PDOException $e){
+            $pdo->rollBack();
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
+    }
+// return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error"));
 // return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
 ?>

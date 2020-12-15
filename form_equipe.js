@@ -1,7 +1,13 @@
 $( document ).ready(function() {
-
+    const dicCodeMSG={
+        "0": {'text':"Cette équipe est déjà inscrit dans ce tournoi",'class':"error"},
+        "1": {'text':"L'équipe a bien été ajouté",'class':"succes"},
+        "2": {'text':"Un problàme s'est prooduit",'class':"error"}
+    };
     const urlParams = new URLSearchParams(window.location.search);
-    const idTournoi = urlParams.get('id');
+    const idTournoi = urlParams.get('id');  //
+    const codeMSG = urlParams.get('codeMSG'); 
+
     if(idTournoi==null){
         window.location="page_home.php";
     }
@@ -10,9 +16,8 @@ $( document ).ready(function() {
             $('body').append(`
                 <h2>Ce tournoi n'existe plus :(</h2>
                 <br>
-                <a href="javascript:window.open('','_self').close();"><button>revenir vers la page d'accueil</button></a>
+                <a href="javascript:window.open('','_self').close();"><button>revenir vers la page d'accueil</button></a>    
             `);
-            
             return;
         }
         optionNiveau=`<option value="">-- Choisissez un niveau --</option>`;
@@ -24,6 +29,7 @@ $( document ).ready(function() {
         // console.log(NbJoueur);
             html=`<h3 class="text-center" >Formulaire d'Equipe</h3>
                 <form action="ajout_equipe.php" method="post" id="formId">
+                    <input type="hidden" name="idTournoi" id="idTournoi" value="${idTournoi}">
                     <label for="nomEquipe">Nom de l'équipe : </label>
                     <input type="text" id="nomEquipe" placeholder="nomEquipe" autocomplete="off" name="nomEquipe" required><br>
                     <label for="nomClub">Le nom de votre club (si vous en avez un):</label>
@@ -46,9 +52,18 @@ $( document ).ready(function() {
                 //label+input pour joueur /concatiner le iavec 
                 //joueurdans name de input/niveau c'est un input select
             }
+            html+=`<button type="submit" form="formId" value="Submit">Finir Formulaire</button>`;
+            if(codeMSG!=null){
+                html+=`
+                    <br><span class='${dicCodeMSG[codeMSG]['class']}'>*${dicCodeMSG[codeMSG]['text']}</span>
+                `;
+            }
             html+=`
-            <button type="submit" form="formId" value="Submit">Finir Formulaire</button>
-            </form>`;
+            </form>
+            <br>
+            <a href="javascript:window.open('','_self').close();"><button>revenir vers la page d'accueil</button></a>
+
+            `;
     $('body').append(html);
     
     

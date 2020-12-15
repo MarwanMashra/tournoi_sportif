@@ -23,21 +23,43 @@ $( document ).ready(function() {
     // document.location= "stats?id="+id;
 
     idTournoi= idT;
-    myAjax('getDecisionTour',{'idTournoi':idTournoi},(data)=>{
-        tour= data['tour'];
-        lastTour= data['lastTour'];
-        if(tour!=null){   //s'il y a déjà un tour actuel, il faut editer les résultats
-            IdTour=tour['IdTour'];
-            EditResultTour();
+    myAjax('CheckTypeTournoi',{'idTournoi':idTournoi},(Tournois)=>{
+        //vérifier s'il y a un autre tournoi (principal ou consultante)
+        let button=``;
+        let title=`
+            <h1>
+                Événement ${Tournois['thisTournoi']['NomEvenement']}:  
+                tournoi ${Tournois['thisTournoi']['Categorie'].toLowerCase()}
+        `;
+        if(Tournois['otherTournoi']!=null){
+            title+=` (<i>${Tournois['thisTournoi']['TypeTournoi']}</i>) `;
+            button= `<a href="page_editer.php?id=${Tournois['otherTournoi']['IdTournoi']}"><button>Tournoi ${Tournois['otherTournoi']['TypeTournoi']}</button></a>`;
         }
-        else if(lastTour!=null && lastTour['NomTour']=='Final'){       //le tournoi a terminé
-            //il faut une redirection vers la page des résultats
-            $('body').append('<h1>Le tournoi a terminé</h1>');   
-        }
-        else{              //il faut encore créer un tour
-            HandleTournoi(idTournoi,lastTour);
-        }
+        title+=`
+            </h1>
+            ${button}
+            <a href="page_home.php"><button>Page d'accueil</button></a>
+        `;
+        $('body').append(title);
+
+        myAjax('getDecisionTour',{'idTournoi':idTournoi},(data)=>{
+            tour= data['tour'];
+            lastTour= data['lastTour'];
+            if(tour!=null){   //s'il y a déjà un tour actuel, il faut editer les résultats
+                IdTour=tour['IdTour'];
+                EditResultTour();
+            }
+            else if(lastTour!=null && lastTour['NomTour']=='Final'){       //le tournoi a terminé
+                //il faut une redirection vers la page des résultats
+                $('body').append('<h1>Le tournoi a terminé</h1>');   
+            }
+            else{              //il faut encore créer un tour
+                let needConsultante= (Tournois['otherTournoi']==null);
+                HandleTournoi(idTournoi,lastTour,needConsultante);
+            }
+        });
     });
+    
 
 });
 

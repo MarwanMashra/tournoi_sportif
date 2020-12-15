@@ -3,6 +3,8 @@ var Terrains=[];
 var idTournoi;
 var lastTour;
 var nomTour="";
+var haveTournoiConsultante= false;
+var needConsultante;
  /*
     si tour= null alors             // il faut créer un nouveau tour 
         si lastTour=null alors 
@@ -29,13 +31,16 @@ var nomTour="";
 
     */
 
-function HandleTournoi(idT,_lastTour){
+function HandleTournoi(idT,_lastTour,_needConsultante){
     idTournoi=idT;
     lastTour= _lastTour;
+    needConsultante= _needConsultante;
     myAjax('getFreeTerrain',{'idTournoi':idTournoi},(listTerrain)=>{
         Terrains= listTerrain;
-        if(lastTour==null){
+        if(lastTour==null){                   //c'est le premier tour du tournoi
+            
             myAjax('getEquipeByIdTournoi',{'idTournoi':idTournoi},(listEquipe)=>{
+                console.log(listEquipe);
                 let listEquipePoule=[];
                 for(let i=1;i<=5;i++){
                     $.each(listEquipe, (index,equipe)=>{
@@ -58,35 +63,28 @@ function HandleTournoi(idT,_lastTour){
 
         }
         else{    //il y avait un ancien tour, il faut chercher ses résultats
+            
+            if(lastTour['NumTour']==1){              //c'était le premier tour, donc mtn on aura un tournoi consaltante
+                haveTournoiConsultante= true;
+            }
 
             myAjax('getResultByIdTournoi',{'IdTour':lastTour['IdTour']},(listResult)=>{
+               
                 if(listResult.length==4){    //c'était le demi-final, mtn c le final
                     Equipes=listResult;
                     tourFinal();
                 }
                 else{
-                    let listEquipePoule=[];
-                
-                    listEquipePoule= getEquipeQualifie(listResult);
-    
-                   
-                    if(true){ //il faut vérifier qu'on est pas déjà dans un tournoi principal ni consaltante
-                        Equipes= listEquipePoule['principal'];
-                        if(listEquipePoule.hasOwnProperty('consaltante')){
-                            console.log("il doit y avoir un tournoi consaltante");
-                        }
+                    res= getEquipeQualifie(listResult)
+                    Equipes= res['listEquieQualifie'];   //cette fonction va aussi créer le tournoi consaltante si haveTournoiConsultante== true
+                    listEquipeConsaltante= res['listEquipeConsaltante'];
+                    if(listEquipeConsaltante.length >1 && haveTournoiConsultante && needConsultante){
+                        createTournoiConsultante(listEquipeConsaltante);
                     }
                     else{
-                        console.log("à faire....");
+                        genAllCombPoule();
                     }
-                    
-                    console.log(Equipes);
-                    genAllCombPoule();
-    
-                    // Equipes= listEquipePoule;
-                    // console.log(Equipes);
-                    //il faut couper la moitié des équipes pour garder ceux qui sont qualifié (attention au final et au demi-final)  
-    
+        
                 }
             
             });
@@ -164,8 +162,8 @@ function afficheChoixPoule(listCombPoule){
         
     });
 
-    if(lastTour==null){
-        nomTour="Tour 1";
+    if(lastTour==null){                   //c'est le premier tour du tournoi
+        nomTour="Tour 1";  
     }
     else if(nomTour==""){        
         nomTour= "Tour "+(parseInt(lastTour['NomTour'].split(' ')[1])+1);
@@ -423,42 +421,34 @@ function getEquipeQualifie(listResult){
     let nbPoule= Object.keys(listResultPoule).length;
     let nbRandQualifie= Math.ceil(Math.ceil(nbEquipe/nbPoule)/2);
     console.log(nbRandQualifie);
-    listEquieQualifie=[];
+    let listEquieQualifie=[];
     for (let i = 0; i < nbRandQualifie; i++) {
         $.each(listResultPoule, (IdPoule,listResultEquipe)=>{        //on va grouper par l'id de poule
             listEquieQualifie.push(listResultEquipe.shift());       //en enlevant les equipes de listResultEquipe
-            // listEquieQualifie.push(listResultEquipe[i]);         //sans enlever les equipes de listResultEquipe
         });    
     }
 
-    res={};
     // if(listEquieQualifie.length <= 4){      //c'est le demi-final, il faut créer un tournoi consultante
-    if(true){
-        let listEquipeConsaltante=[];
-        let nbReste= listResult.length - listEquieQualifie.length;
-        while(nbReste>0){
-            $.each(listResultPoule, (IdPoule,listResultEquipe)=>{         //on va grouper par l'id de poule
-                if(listResultEquipe.length>0){
-                    listEquipeConsaltante.push(listResultEquipe.shift());
-                    nbReste--;
-                }
-            });
-        }
-        if(listEquieQualifie.length < 4){        //pour avoir un tournoi avec 4 équipes min
-            for(let i=0; i< 4-listEquieQualifie.length; i++){
-                listEquieQualifie.push(listEquipeConsaltante.shift());
+    let listEquipeConsaltante=[];
+    let nbReste= listResult.length - listEquieQualifie.length;
+    while(nbReste>0){
+        $.each(listResultPoule, (IdPoule,listResultEquipe)=>{         //on va grouper par l'id de poule
+            if(listResultEquipe.length>0){
+                listEquipeConsaltante.push(listResultEquipe.shift());
+                nbReste--;
             }
-        }
-        if(listEquipeConsaltante.length >1){
-            res['consaltante']= listEquipeConsaltante;
+        });
+    }
+    if(listEquieQualifie.length < 4){        //pour avoir un tournoi avec 4 équipes min
+        for(let i=0; i< 4-listEquieQualifie.length; i++){
+            listEquieQualifie.push(listEquipeConsaltante.shift());
         }
     }
 
-    res['principal']= listEquieQualifie;
-    return res;
+    return {'listEquieQualifie':listEquieQualifie,'listEquipeConsaltante':listEquipeConsaltante};  
 }
 
-function tourFinal(listCombPoule){
+function tourFinal(){
     params={};
     params['NomTour']="Final";
     params['Statue']="encours";
@@ -485,10 +475,10 @@ function tourFinal(listCombPoule){
     else{
         alert("tourFinal est appelé alr que c pas le final !!!");
     }
-
+    console.log(params)
     myAjax('insertTour',params,(response)=>{
         if(response['class']=='succes'){
-            location.reload();
+            // location.reload();
         }
         else{
             $('#error-tour').text(response['message']);
@@ -499,6 +489,20 @@ function tourFinal(listCombPoule){
     });
 
 }
+
+function createTournoiConsultante(listEquipe){
+    myAjax('createTournoiConsultante',{'listEquipe':listEquipe},(response)=>{
+        if(response['class']=='succes'){
+            location.reload();
+        }
+        else{
+            $('#error-tour').text(response['message']);
+        }
+    });
+}
+
+
+
 /*
 # donner un classement aux équipes (au début tt le monde aura le même classement, ensuite selon les résultats)
 # créer l'ensemble des équipes participants au prochain tour (tous les équipes dans le cas de premier tour)

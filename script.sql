@@ -11,6 +11,17 @@
 --	Sport(TypeJeu)
 
 
+-- trigger:
+-- les evenement passé doivent être supprimés
+-- quand un tour termine, ses poules auront un terrain null
+-- quand un evemenet commence, les equipes inscrits dans ses tournois qui n'ont pas validé leur inscription seront supprimer
+-- 
+-- 
+-- 
+-- 
+-- 
+
+
 drop table if exists Joue;
 drop table if exists Poule;
 drop table if exists Terrain;
@@ -61,7 +72,7 @@ create table Tournoi(
     constraint PK_Tournoi primary key(IdTournoi),
     constraint FK_Tournoi_Evenement foreign key(IdEvenement) 
         references Evenement(IdEvenement) on delete cascade,
-    constraint DOM_TypeTournoi_Tournoi check(TypeTournoi in ('principal','consultant')),
+    constraint DOM_TypeTournoi_Tournoi check(TypeTournoi in ('principal','consultante')),
     CONSTRAINT UNIQUE_IdEvenement_Categorie_TypeTournoi UNIQUE(IdEvenement,Categorie,TypeTournoi)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -173,6 +184,7 @@ Insert into Tournoi values (null,'Femme','principal',2);
 
 -- INSERTION Equipe
 
+
 Insert into Equipe values(null,'PSG1',4,'Paris-St-Germain',1,true);
 Insert into Equipe values(null,'OM1',2,'Olympique-de-Marseille',1,true);
 Insert into Equipe values(null,'OL1',2,'Olympique-Lyonnais',1,true);
@@ -181,20 +193,31 @@ Insert into Equipe values(null,'REAL1',1,'Real Madrid',1,true);
 Insert into Equipe values(null,'PSG2',4,'Paris-St-Germain',1,true);
 Insert into Equipe values(null,'OM2',2,'Olympique-de-Marseille',1,true);
 Insert into Equipe values(null,'OL2',2,'Olympique-Lyonnais',1,true);
-Insert into Equipe values(null,'REAL2',1,'Real Madrid',1,true);
 
-Insert into Equipe values(null,'PSG3',4,'Paris-St-Germain',1,true);
-Insert into Equipe values(null,'OM3',2,'Olympique-de-Marseille',1,true);
-Insert into Equipe values(null,'OL3',2,'Olympique-Lyonnais',1,true);
-Insert into Equipe values(null,'REAL3',1,'Real Madrid',1,true);
 
-Insert into Equipe values(null,'PSG4',4,'Paris-St-Germain',1,true);
-Insert into Equipe values(null,'OM4',2,'Olympique-de-Marseille',1,true);
-Insert into Equipe values(null,'OL4',2,'Olympique-Lyonnais',1,true);
-Insert into Equipe values(null,'REAL4',1,'Real Madrid',1,true);
 
-Insert into Equipe values(null,'KangooJnr',5,null,2,false);
-Insert into Equipe values(null,'TortueNinja',5,null,2,false);
+-- Insert into Equipe values(null,'PSG1',4,'Paris-St-Germain',1,true);
+-- Insert into Equipe values(null,'OM1',2,'Olympique-de-Marseille',1,true);
+-- Insert into Equipe values(null,'OL1',2,'Olympique-Lyonnais',1,true);
+-- Insert into Equipe values(null,'REAL1',1,'Real Madrid',1,true);
+
+-- Insert into Equipe values(null,'PSG2',4,'Paris-St-Germain',1,true);
+-- Insert into Equipe values(null,'OM2',2,'Olympique-de-Marseille',1,true);
+-- Insert into Equipe values(null,'OL2',2,'Olympique-Lyonnais',1,true);
+-- Insert into Equipe values(null,'REAL2',1,'Real Madrid',1,true);
+
+-- Insert into Equipe values(null,'PSG3',4,'Paris-St-Germain',1,true);
+-- Insert into Equipe values(null,'OM3',2,'Olympique-de-Marseille',1,true);
+-- Insert into Equipe values(null,'OL3',2,'Olympique-Lyonnais',1,true);
+-- Insert into Equipe values(null,'REAL3',1,'Real Madrid',1,true);
+
+-- Insert into Equipe values(null,'PSG4',4,'Paris-St-Germain',1,true);
+-- Insert into Equipe values(null,'OM4',2,'Olympique-de-Marseille',1,true);
+-- Insert into Equipe values(null,'OL4',2,'Olympique-Lyonnais',1,true);
+-- Insert into Equipe values(null,'REAL4',1,'Real Madrid',1,true);
+
+-- Insert into Equipe values(null,'KangooJnr',5,null,2,false);
+-- Insert into Equipe values(null,'TortueNinja',5,null,2,false);
 
 -- INSERTION Joueur
 
@@ -220,46 +243,48 @@ INSERT into Joueur values(null,'Waddle','Chris','Pro',6);
 INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',7);
 INSERT into Joueur values(null,'Gomez','Yohan','Pro',7);
 INSERT into Joueur values(null,'Hartock','Joan','Pro',7);
-INSERT into Joueur values(null,'Vieira','Marcelo','Pro',8);
-INSERT into Joueur values(null,'Lunin','Andriy','Pro',8);
-INSERT into Joueur values(null,'Modric','Luka','Pro',8);
-
-INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',9);
-INSERT into Joueur values(null,'Mbappé','Kylian','Pro',9);
-INSERT into Joueur values(null,'Köpke','Andreas','Pro',9);
-INSERT into Joueur values(null,'Zinedine','Zidane','Pro',10);
-INSERT into Joueur values(null,'Barthez','Fabien','Pro',10);
-INSERT into Joueur values(null,'Waddle','Chris','Pro',10);
-INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',11);
-INSERT into Joueur values(null,'Gomez','Yohan','Pro',11);
-INSERT into Joueur values(null,'Hartock','Joan','Pro',11);
-INSERT into Joueur values(null,'Vieira','Marcelo','Pro',12);
-INSERT into Joueur values(null,'Lunin','Andriy','Pro',12);
-INSERT into Joueur values(null,'Modric','Luka','Pro',12);
-
-INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',13);
-INSERT into Joueur values(null,'Mbappé','Kylian','Pro',13);
-INSERT into Joueur values(null,'Köpke','Andreas','Pro',13);
-INSERT into Joueur values(null,'Zinedine','Zidane','Pro',14);
-INSERT into Joueur values(null,'Barthez','Fabien','Pro',14);
-INSERT into Joueur values(null,'Waddle','Chris','Pro',14);
-INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',15);
-INSERT into Joueur values(null,'Gomez','Yohan','Pro',15);
-INSERT into Joueur values(null,'Hartock','Joan','Pro',15);
-INSERT into Joueur values(null,'Vieira','Marcelo','Pro',16);
-INSERT into Joueur values(null,'Lunin','Andriy','Pro',16);
-INSERT into Joueur values(null,'Modric','Luka','Pro',16);
 
 
+-- INSERT into Joueur values(null,'Vieira','Marcelo','Pro',8);
+-- INSERT into Joueur values(null,'Lunin','Andriy','Pro',8);
+-- INSERT into Joueur values(null,'Modric','Luka','Pro',8);
+
+-- INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',9);
+-- INSERT into Joueur values(null,'Mbappé','Kylian','Pro',9);
+-- INSERT into Joueur values(null,'Köpke','Andreas','Pro',9);
+-- INSERT into Joueur values(null,'Zinedine','Zidane','Pro',10);
+-- INSERT into Joueur values(null,'Barthez','Fabien','Pro',10);
+-- INSERT into Joueur values(null,'Waddle','Chris','Pro',10);
+-- INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',11);
+-- INSERT into Joueur values(null,'Gomez','Yohan','Pro',11);
+-- INSERT into Joueur values(null,'Hartock','Joan','Pro',11);
+-- INSERT into Joueur values(null,'Vieira','Marcelo','Pro',12);
+-- INSERT into Joueur values(null,'Lunin','Andriy','Pro',12);
+-- INSERT into Joueur values(null,'Modric','Luka','Pro',12);
+
+-- INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',13);
+-- INSERT into Joueur values(null,'Mbappé','Kylian','Pro',13);
+-- INSERT into Joueur values(null,'Köpke','Andreas','Pro',13);
+-- INSERT into Joueur values(null,'Zinedine','Zidane','Pro',14);
+-- INSERT into Joueur values(null,'Barthez','Fabien','Pro',14);
+-- INSERT into Joueur values(null,'Waddle','Chris','Pro',14);
+-- INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',15);
+-- INSERT into Joueur values(null,'Gomez','Yohan','Pro',15);
+-- INSERT into Joueur values(null,'Hartock','Joan','Pro',15);
+-- INSERT into Joueur values(null,'Vieira','Marcelo','Pro',16);
+-- INSERT into Joueur values(null,'Lunin','Andriy','Pro',16);
+-- INSERT into Joueur values(null,'Modric','Luka','Pro',16);
 
 
 
-INSERT into Joueur values(null,'Junior','Napo','loisir',17);
-INSERT into Joueur values(null,'Junior','Nelson','loisir',17);
-INSERT into Joueur values(null,'Junior','Archie','loisir',17);
-INSERT into Joueur values(null,'Splinter','Donatello','loisir',18);
-INSERT into Joueur values(null,'Splinter','Leonardo','loisir',18);
-INSERT into Joueur values(null,'Splinter','Raphaelo','loisir',18);
+
+
+-- INSERT into Joueur values(null,'Junior','Napo','loisir',17);
+-- INSERT into Joueur values(null,'Junior','Nelson','loisir',17);
+-- INSERT into Joueur values(null,'Junior','Archie','loisir',17);
+-- INSERT into Joueur values(null,'Splinter','Donatello','loisir',18);
+-- INSERT into Joueur values(null,'Splinter','Leonardo','loisir',18);
+-- INSERT into Joueur values(null,'Splinter','Raphaelo','loisir',18);
 
 
 -- INSERTION Inscrit
