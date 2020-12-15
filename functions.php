@@ -247,7 +247,7 @@
             }
             catch(PDOException $e){
                 $pdo->rollBack();
-                return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+                return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error"));
             }
         }      
     }
@@ -263,6 +263,52 @@
         }
         return json_encode($res);
         
+    }
+
+    function updateResult($pdo,$params){
+        $NbSet=$params['NbSet'];
+        $NbPoint=$params['NbPoint'];
+        $vainqueur=$params['vainqueur'];
+        $IdPoule=$params['IdPoule'];
+        $IdEquipe=$params['IdEquipe'];
+        try{   //je démarre une transaction
+                
+            $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+            
+            if($vainqueur!="0"){
+                $q_vainqueur= $pdo->prepare('UPDATE Joue SET NbMatch=NbMatch+1 where IdPoule=? and IdEquipe=?;');
+                $q_vainqueur->execute(array($IdPoule,$IdEquipe));
+            }
+            if($NbSet!="0"){
+                $q_NbSet= $pdo->prepare('UPDATE Joue SET NbSet=NbSet+? where IdPoule=? and IdEquipe=?;');
+                $q_NbSet->execute(array($NbSet,$IdPoule,$IdEquipe));
+            }
+            if($NbPoint!="0"){
+                $q_NbPoint= $pdo->prepare('UPDATE Joue SET NbPoint=NbPoint+? where IdPoule=? and IdEquipe=?;');
+                $q_NbPoint->execute(array($NbPoint,$IdPoule,$IdEquipe));
+            }
+            
+            $pdo->commit();
+            return json_encode(array('message'=>"Le résultat a été mis à jour",'class'=>"succes"));
+
+        }
+        catch(PDOException $e){
+            $pdo->rollBack();
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error"));
+        }
+
+    }
+
+    function endTour($pdo,$params){
+        $q_endTour= $pdo->prepare("UPDATE Tour SET Statue='termine' where IdTour=?;");
+        $succes= $q_endTour->execute(array($params['IdTour']));
+        if($succes){
+            return json_encode(array('message'=>"Le tour a terminé",'class'=>"succes"));
+        }
+        else{
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
     }
 // return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
 ?>

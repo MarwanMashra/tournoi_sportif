@@ -90,17 +90,6 @@ create table Joueur(
         (NiveauJoueur in ('loisir', 'départemental','régional','Elite','Pro'))
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- create table Inscrit(
---     IdTournoi int,
---     IdEquipe int, 
---     estValide BOOLEAN default false,
---     constraint PK_Inscrit primary key(IdTournoi,IdEquipe),
---     constraint FK_Inscrit_Tournoi foreign key(IdTournoi) 
---         references Tournoi(IdTournoi) on delete cascade, 
---     constraint FK_Inscrit_Equipe foreign key(IdEquipe)
---         references Equipe(IdEquipe) on delete cascade
--- )ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 create table Tour(
     IdTour int AUTO_INCREMENT,
     NomTour varchar(100),
@@ -281,7 +270,7 @@ INSERT into Joueur values(null,'Splinter','Raphaelo','loisir',18);
 
 -- INSERTION Tour
 
-Insert into Tour values(null,"quart-FinalPRO",1,'termine',1);
+-- Insert into Tour values(null,"quart-FinalPRO",1,'encours',1);
 -- Insert into Tour values(null,"Demi-FinalPRO",2,'termine',1);
 -- Insert into Tour values(null,"FinalPRO",3,'termine',1);
 
@@ -303,29 +292,29 @@ Insert into Terrain values(null,"Basket-ball");
 
 -- INSERTION Poule
 
-Insert into Poule values(null,"Poule 1",1,1);
-Insert into Poule values(null,"Poule 2",1,2);
-Insert into Poule values(null,"Poule 3",1,3);
-Insert into Poule values(null,"Poule 4",1,4);
+-- Insert into Poule values(null,"Poule 1",1,1);
+-- Insert into Poule values(null,"Poule 2",1,2);
+-- Insert into Poule values(null,"Poule 3",1,3);
+-- Insert into Poule values(null,"Poule 4",1,4);
 
 -- INSERTION Joue
 
-INSERT into Joue values(1,1,2,1,3);
-INSERT into Joue values(1,2,1,1,10);
-INSERT into Joue values(1,3,1,3,1);
-INSERT into Joue values(1,4,1,5,4);
+-- INSERT into Joue values(1,1,2,1,3);
+-- INSERT into Joue values(1,2,1,1,10);
+-- INSERT into Joue values(1,3,1,3,1);
+-- INSERT into Joue values(1,4,1,5,4);
 
-INSERT into Joue values(2,5,1,1,2);
-INSERT into Joue values(2,6,2,2,2);
-INSERT into Joue values(2,7,1,8,103);
-INSERT into Joue values(2,8,2,1,97);
+-- INSERT into Joue values(2,5,1,1,2);
+-- INSERT into Joue values(2,6,2,2,2);
+-- INSERT into Joue values(2,7,1,8,103);
+-- INSERT into Joue values(2,8,2,1,97);
 
-INSERT into Joue values(3,9,1,1,97);
-INSERT into Joue values(3,10,1,3,12);
-INSERT into Joue values(3,11,2,1,1);
-INSERT into Joue values(3,12,1,1,4);
+-- INSERT into Joue values(3,9,1,1,97);
+-- INSERT into Joue values(3,10,1,3,12);
+-- INSERT into Joue values(3,11,2,1,1);
+-- INSERT into Joue values(3,12,1,1,4);
 
-INSERT into Joue values(4,13,1,1,20);
-INSERT into Joue values(4,14,2,1,2);
-INSERT into Joue values(4,15,1,1,103);
-INSERT into Joue values(4,16,1,1,97);
+-- INSERT into Joue values(4,13,1,1,20);
+-- INSERT into Joue values(4,14,2,1,2);
+-- INSERT into Joue values(4,15,1,1,103);
+-- INSERT into Joue values(4,16,1,1,97);

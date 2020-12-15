@@ -1,7 +1,8 @@
 var Equipes=[];
 var Terrains=[];
 var idTournoi;
-var tour,lastTour;
+var lastTour;
+var nomTour="";
  /*
     si tour= null alors             // il faut créer un nouveau tour 
         si lastTour=null alors 
@@ -14,11 +15,22 @@ var tour,lastTour;
         sinon 
             il faut juste choisir les équipes pour les poules
 
+
+    ------------------------------------------------------------------------
+
+    si (il y a mtn 3 ou 2 équipes) alr
+       c le final
+    sinon si (il y avait 4 équipes) alr
+        c le final  
+    sinon si (il y a mtn 4 équipes) alr
+        c'est le demi-final (cas normal)
+    sinon 
+        c'est un cas normal
+
     */
 
-function HandleTournoi(idT,_tour,_lastTour){
+function HandleTournoi(idT,_lastTour){
     idTournoi=idT;
-    tour= _tour;
     lastTour= _lastTour;
     myAjax('getFreeTerrain',{'idTournoi':idTournoi},(listTerrain)=>{
         Terrains= listTerrain;
@@ -34,42 +46,49 @@ function HandleTournoi(idT,_tour,_lastTour){
                 }
 
                 Equipes= listEquipePoule;
-                genAllCombPoule();
+
+                let nbEquipe= Equipes.length;
+                if(nbEquipe<4 && nbEquipe>1)   //final (un des cas possible)
+                    tourFinal();
+
+                else
+                    genAllCombPoule();
+                
             });
 
         }
         else{    //il y avait un ancien tour, il faut chercher ses résultats
+
             myAjax('getResultByIdTournoi',{'IdTour':lastTour['IdTour']},(listResult)=>{
-                let listEquipePoule=[];
-                let listResultPoule={};
-                $.each(listResult, (index,result)=>{         //on va grouper par l'id de poule
-                    // console.log(result);
-                    if(listResultPoule.hasOwnProperty(result['IdPoule'])){
-                        listResultPoule[result['IdPoule']].push(result);
+                if(listResult.length==4){    //c'était le demi-final, mtn c le final
+                    Equipes=listResult;
+                    tourFinal();
+                }
+                else{
+                    let listEquipePoule=[];
+                
+                    listEquipePoule= getEquipeQualifie(listResult);
+    
+                   
+                    if(true){ //il faut vérifier qu'on est pas déjà dans un tournoi principal ni consaltante
+                        Equipes= listEquipePoule['principal'];
+                        if(listEquipePoule.hasOwnProperty('consaltante')){
+                            console.log("il doit y avoir un tournoi consaltante");
+                        }
                     }
                     else{
-                        listResultPoule[result['IdPoule']]=[];
-                        listResultPoule[result['IdPoule']].push(result);
+                        console.log("à faire....");
                     }
-
-                });
-                let nbResult= listResult.length;
-                while(nbResult>0){
-                    $.each(listResultPoule, (IdPoule,listResultEquipe)=>{         //on va grouper par l'id de poule
-                        if(listResultEquipe.length>0){
-                            listEquipePoule.push(listResultEquipe.shift());
-                            nbResult--;
-                        }
-                    });
+                    
+                    console.log(Equipes);
+                    genAllCombPoule();
+    
+                    // Equipes= listEquipePoule;
+                    // console.log(Equipes);
+                    //il faut couper la moitié des équipes pour garder ceux qui sont qualifié (attention au final et au demi-final)  
+    
                 }
-
-                Equipes= listEquipePoule;
-                console.log(Equipes);
-                //il faut couper la moitié des équipes pour garder ceux qui sont qualifié (attention au final et au demi-final)  
-
-
-                // genAllCombPoule();
-
+            
             });
         }              
 
@@ -84,18 +103,20 @@ function genAllCombPoule(){
     var nbEquipe=Equipes.length;
     // console.log(`Il y a ${nbEquipe} équipes`);
 
-    if(nbEquipe==4){
+    if(nbEquipe==4){                   //demi-final
         listCombPoule.push([2,2]);
+        nomTour="Demi-Final";
     }
     else{
         bornSup= Math.ceil(nbEquipe/2);
 
-        for (let i = 3; i <= bornSup; i++) {
+        for (let i = 2; i <= bornSup; i++) {
             let candidat=[];
             let som=0;
             let reste=nbEquipe;
             let nbChoisi=0;
             let different=false;   //pour pas avoir de doublant
+            let pouleUnitaire=false;
             while(som<nbEquipe){
                 if(reste%i==0){
                     nbChoisi=i;
@@ -104,12 +125,15 @@ function genAllCombPoule(){
                 else{
                     nbChoisi=i-1; 
                 }
+                if(nbChoisi==1)
+                    pouleUnitaire=true; 
+
                 candidat.push(nbChoisi);
                 reste-=(nbChoisi);
                 som+=nbChoisi;
             }
 
-            if(som==nbEquipe && different && candidat.length<=Terrains.length){   //faut que le nombre de poule soit pas superieur au nombre de terrain disponible 
+            if(som==nbEquipe && different && !pouleUnitaire && candidat.length<=Terrains.length){   //faut que le nombre de poule soit pas superieur au nombre de terrain disponible 
                 listCombPoule.push(candidat);
             }
             
@@ -123,12 +147,7 @@ function genAllCombPoule(){
 
 function afficheChoixPoule(listCombPoule){
     if(listCombPoule.length==0){
-        if(Terrains.length<2) 
-            probleme="de terrains disponibles";
-        else{
-            probleme="d'équipe";
-        }
-        $('body').append(`<p>Le tour ne peut pas commencer car il n'y a pas assez ${probleme}`);
+        $('body').append(`<p>Il y a eu un problème, le tour ne peut pas commencer :( </p>`);
         return;  //on arrête car le tour ne peut pas commencer 
     }
 
@@ -145,8 +164,15 @@ function afficheChoixPoule(listCombPoule){
         
     });
 
-    
+    if(lastTour==null){
+        nomTour="Tour 1";
+    }
+    else if(nomTour==""){        
+        nomTour= "Tour "+(parseInt(lastTour['NomTour'].split(' ')[1])+1);
+    }
+
     var html=`
+        <h3>${nomTour}</h3>
         <label class='label'>Choix de poule :</label>
         <br><div id="choix-poule-div">
     `;
@@ -309,7 +335,6 @@ function createTour(){
     else{
         $('#error-tour').text("");
         params=obj['params'];
-        console.log(params);
         myAjax('insertTour',params,(response)=>{
             if(response['class']=='succes'){
                 location.reload();
@@ -327,15 +352,16 @@ function createTour(){
 
 function getDataTour(){
     params={};
-    params['NomTour']="Tour 1";
     params['Statue']="encours";
     params['IdTournoi']=idTournoi;
-    if(tour==null)
+    params['NomTour']= nomTour;
+    if(lastTour==null){
         params['NumTour']=1;
-    else
-        params['NumTour']=NumTour['NumTour']+1;
+    }
+    else{        
+        params['NumTour']=parseInt(lastTour['NumTour'])+1;
+    }
 
-    
     params['listPoule']=[];
     nomPouleVide=false;
     listeNumTerrain=[];
@@ -378,8 +404,102 @@ function getDataTour(){
 function getNbPoule(){
     return $("input[name='choix-poule-input']:checked").val();
 }
-/*
 
+
+function getEquipeQualifie(listResult){
+    let listResultPoule={};
+    $.each(listResult, (index,result)=>{         //on va grouper par l'id de poule
+        // console.log(result);
+        if(listResultPoule.hasOwnProperty(result['IdPoule'])){
+            listResultPoule[result['IdPoule']].push(result);
+        }
+        else{
+            listResultPoule[result['IdPoule']]=[];
+            listResultPoule[result['IdPoule']].push(result);
+        }
+
+    });
+    let nbEquipe= listResult.length;
+    let nbPoule= Object.keys(listResultPoule).length;
+    let nbRandQualifie= Math.ceil(Math.ceil(nbEquipe/nbPoule)/2);
+    console.log(nbRandQualifie);
+    listEquieQualifie=[];
+    for (let i = 0; i < nbRandQualifie; i++) {
+        $.each(listResultPoule, (IdPoule,listResultEquipe)=>{        //on va grouper par l'id de poule
+            listEquieQualifie.push(listResultEquipe.shift());       //en enlevant les equipes de listResultEquipe
+            // listEquieQualifie.push(listResultEquipe[i]);         //sans enlever les equipes de listResultEquipe
+        });    
+    }
+
+    res={};
+    // if(listEquieQualifie.length <= 4){      //c'est le demi-final, il faut créer un tournoi consultante
+    if(true){
+        let listEquipeConsaltante=[];
+        let nbReste= listResult.length - listEquieQualifie.length;
+        while(nbReste>0){
+            $.each(listResultPoule, (IdPoule,listResultEquipe)=>{         //on va grouper par l'id de poule
+                if(listResultEquipe.length>0){
+                    listEquipeConsaltante.push(listResultEquipe.shift());
+                    nbReste--;
+                }
+            });
+        }
+        if(listEquieQualifie.length < 4){        //pour avoir un tournoi avec 4 équipes min
+            for(let i=0; i< 4-listEquieQualifie.length; i++){
+                listEquieQualifie.push(listEquipeConsaltante.shift());
+            }
+        }
+        if(listEquipeConsaltante.length >1){
+            res['consaltante']= listEquipeConsaltante;
+        }
+    }
+
+    res['principal']= listEquieQualifie;
+    return res;
+}
+
+function tourFinal(listCombPoule){
+    params={};
+    params['NomTour']="Final";
+    params['Statue']="encours";
+    params['IdTournoi']=idTournoi;
+    if(lastTour==null)
+        params['NumTour']=1;
+    else
+        params['NumTour']=parseInt(lastTour['NumTour'])+1;
+
+    
+    if(Equipes.length==4){
+        params['listPoule']=[
+            {'NomPoule':'Poule 1','NumTerrain':Terrains.pop(),'listIdEquipe':[Equipes[0]['IdEquipe'],Equipes[2]['IdEquipe']]},
+            {'NomPoule':'Poule 2','NumTerrain':Terrains.pop(),'listIdEquipe':[Equipes[1]['IdEquipe'],Equipes[3]['IdEquipe']]}
+        ];
+
+    }
+    else if(Equipes.length>1 && Equipes.length<4){      
+        params['listPoule']=[{'NomPoule':'Poule 1','NumTerrain':Terrains.pop(),'listIdEquipe':[]}]; 
+        $.each(Equipes, (index,equipe)=>{
+            params['listPoule'][0]['listIdEquipe'].push(equipe['IdEquipe']);
+        });
+    }
+    else{
+        alert("tourFinal est appelé alr que c pas le final !!!");
+    }
+
+    myAjax('insertTour',params,(response)=>{
+        if(response['class']=='succes'){
+            location.reload();
+        }
+        else{
+            $('#error-tour').text(response['message']);
+            console.log(response['error'])
+            console.log(response['trace'])
+
+        }
+    });
+
+}
+/*
 # donner un classement aux équipes (au début tt le monde aura le même classement, ensuite selon les résultats)
 # créer l'ensemble des équipes participants au prochain tour (tous les équipes dans le cas de premier tour)
 # calculer et afficher les possibilités (combinsations)

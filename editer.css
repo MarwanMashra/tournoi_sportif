@@ -36,3 +36,11 @@
 .error{
     color: #DC143C;
 }
+table, th, td {
+    border: 1px solid black;
+    text-align: center;
+    padding: .3rem;
+}
+/* #result-table{
+    
+} */
