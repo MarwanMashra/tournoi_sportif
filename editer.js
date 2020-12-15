@@ -18,7 +18,9 @@ $( document ).ready(function() {
     */
 
     //il faut récupérer l'id de tournoi
-    var idT=1;
+    const urlParams = new URLSearchParams(window.location.search);
+    const idT = urlParams.get('id');
+    // document.location= "stats?id="+id;
 
     idTournoi= idT;
     myAjax('getDecisionTour',{'idTournoi':idTournoi},(data)=>{

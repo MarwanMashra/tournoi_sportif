@@ -1,9 +1,20 @@
 $( document ).ready(function() {
-    
-    idTournoi= 1;
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const idTournoi = urlParams.get('id');
+    if(idTournoi==null){
+        window.location="page_home.php";
+    }
     myAjax('getNbJoueurByIdTournoi',{'id' : idTournoi},(data)=>{
-
+        if(! data){
+            $('body').append(`
+                <h2>Ce tournoi n'existe plus :(</h2>
+                <br>
+                <a href="javascript:window.open('','_self').close();"><button>revenir vers la page d'accueil</button></a>
+            `);
+            
+            return;
+        }
         optionNiveau=`<option value="">-- Choisissez un niveau --</option>`;
         $.each(listNiveau,(index,niveau)=>{
             optionNiveau+=`<option value="${niveau}">${niveau}</option>`;

@@ -1,7 +1,7 @@
 
 --	Organisateur (Pseudo, NomOrganisateur, PrenomOrganisateur, Mdp) 
 --	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur,Statue)
---	Tournoi (IdTournoi, Categorie, IdEvenement)  
+--	Tournoi (IdTournoi, Categorie,TypeTournoi, IdEvenement)  
 --	Equipe (IdEquipe, NomEquipe, NiveauEquipe, NomClub, IdTournoi,InscriptionValidee) 
 --	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, IdEquipe)
 --	Tour (IdTour, NomTour, NumTour, Statue, IdTournoi) 
@@ -56,10 +56,13 @@ create table Evenement(
 create table Tournoi(
     IdTournoi int AUTO_INCREMENT,
     Categorie varchar(50),
+    TypeTournoi varchar(50) default 'principal',
     IdEvenement int not null,
     constraint PK_Tournoi primary key(IdTournoi),
     constraint FK_Tournoi_Evenement foreign key(IdEvenement) 
-        references Evenement(IdEvenement) on delete restrict 
+        references Evenement(IdEvenement) on delete cascade,
+    constraint DOM_TypeTournoi_Tournoi check(TypeTournoi in ('principal','consultant')),
+    CONSTRAINT UNIQUE_IdEvenement_Categorie_TypeTournoi UNIQUE(IdEvenement,Categorie,TypeTournoi)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -163,10 +166,10 @@ Insert into Evenement values (null,'SeriesTournois3','Nice','2020-12-10','Basket
 
 -- INSERTION TournoiS
 
-Insert into Tournoi values (null,'Adulte',1);
-Insert into Tournoi values (null,'Adulte',2);
-Insert into Tournoi values (null,'Femme',1);
-Insert into Tournoi values (null,'Femme',2);
+Insert into Tournoi values (null,'Adulte','principal',1);
+Insert into Tournoi values (null,'Adulte','principal',2);
+Insert into Tournoi values (null,'Femme','principal',1);
+Insert into Tournoi values (null,'Femme','principal',2);
 
 -- INSERTION Equipe
 

@@ -63,7 +63,7 @@
         $sport=$params['sport'];
         $statue=$params['statue'];
      
-        $q="SELECT * from Evenement where DateEvenement>=:startDate and DateEvenement<=:endDate";
+        $q="SELECT * from Evenement E join Tournoi T on T.IdEvenement=E.IdEvenement where TypeTournoi='principal' and DateEvenement>=:startDate and DateEvenement<=:endDate";
         $listParams= array('startDate'=>$startDate,'endDate'=>$endDate);
         if($sport!="all"){
             $q.=" and TypeJeu=:sport";
@@ -109,7 +109,7 @@
                 $q_IdEvenement= $pdo->query('SELECT IdEvenement FROM Evenement WHERE IdEvenement=LAST_INSERT_ID();');
                 $IdEvenement= $q_IdEvenement->fetch()['IdEvenement'];
 
-                $q_tournoi= $pdo->prepare('INSERT into Tournoi values (null,:categorie,:IdEvenement);');
+                $q_tournoi= $pdo->prepare("INSERT into Tournoi values (null,:categorie,'principal',:IdEvenement);");
                 foreach($listTournoi as $categorie){
                     $q_tournoi->execute(array('categorie'=>$categorie,'IdEvenement'=>$IdEvenement));
                 }
