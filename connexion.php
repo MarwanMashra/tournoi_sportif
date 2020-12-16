@@ -30,6 +30,8 @@
                 header('Location:page_connexion.php'); 
             }
 
+            $pdo=null;
+
         }
     }else header('Location:page_home.php');
 

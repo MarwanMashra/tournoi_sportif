@@ -24,6 +24,10 @@ function addProfilElements(){
 function addCreateButtons(){
     $('body').append(`<div id="create-event-container"><div>`);
     addCreateEvent();
+    $('body').append(`<div id="create-terrain-container"><div>`);
+    addCreateTerrain();
+    $('body').append(`<div id="create-sport-container"><div>`);
+    addCreateSport();
 }
 
 function addCreateEvent(){
@@ -79,7 +83,7 @@ function addCreateEvent(){
                             <br>
                         </fieldset>
                         
-                        
+                        <br>
                         <button id="create-event-button">Créer</button>
                         <button id="hide-Form-create-event-button">Annuler</button>
                         <span id="form-error" style="color:red;"></span>
@@ -165,5 +169,135 @@ function sendEvent(){
     else{
         $('#form-error').text('*Une ou plusieurs case est vide');
     }
+    
+}
+
+function addCreateTerrain(){
+    html=`
+        <div id="create-terrain-container">
+            <button id="show-Form-create-terrain-button">Ajouter un terrain</button>
+        <div>
+    `;
+    $('#create-terrain-container').replaceWith(html);
+    $('#show-Form-create-terrain-button').click(()=>{
+        myAjax('getAllSports',{},(sports)=>{
+            html=`
+                <div id="create-terrain-container">
+                    <fieldset>
+                        <legend>Ajouter un nouveau terrain :</legend>
+
+                        <label for="TypeJeu-input-terrain" id="TypeJeu-terrain-label" class="label">Le sport du terrain :</label>
+                        <select name="TypeJeu-input-terrain" id="TypeJeu-input-terrain" required>
+                        <option value="">-- Choisissez un sport --</option>
+                `;
+
+                $.each(sports,(index,sport)=>{
+                    html+=`<option value="${sport}">${sport}</option>`;
+                })
+
+                html+=`
+                        </select>                        
+                        <br><br>
+                        <button id="create-terrain-button">Ajouter</button>
+                        <button id="hide-Form-create-terrain-button">Annuler</button>
+                        <span id="form-error-terrain" style="color:red;"></span>
+
+                    </fieldset>
+                <div>
+            `;
+            $('#create-terrain-container').replaceWith(html);
+            $('#hide-Form-create-terrain-button').click(()=>{
+                addCreateTerrain(); 
+            });
+
+            $('#create-terrain-button').click(()=>{
+                sendTerrain();
+            });
+
+        });
+        
+    });
+}
+
+
+function sendTerrain(){
+    TypeJeu= $('#TypeJeu-input-terrain').val().trim();
+    if(TypeJeu!=""){
+        $('#form-error-terrain').text('');
+        myAjax('insertTerrain',{'TypeJeu':TypeJeu},(response)=>{
+            if(response['class']=="succes"){
+                addCreateTerrain();  //on peut aussi afficher un message pour dire que l'evenement a été bien créé
+            }else{
+                $('#form-error-terrain').text(`*${response['message']}`);
+
+            }
+        });
+    }
+    else{
+        $('#form-error-terrain').text('*Veuillez choisir un sport pour le terrain');
+    }
+    
+}
+
+
+function addCreateSport(){
+    html=`
+        <div id="create-sport-container">
+            <button id="show-Form-create-sport-button">Ajouter un sport</button>
+        <div>
+    `;
+    $('#create-sport-container').replaceWith(html);
+    $('#show-Form-create-sport-button').click(()=>{
+        myAjax('getAllSports',{},(sports)=>{
+            html=`
+                <div id="create-sport-container">
+                    <fieldset>
+                        <legend>Ajouter un nouveau sport :</legend>
+
+                        <label for="TypeJeu-input-sport" id="TypeJeu-sport-label" class="label">Le sport du sport :</label>
+                        <input type="text" name="TypeJeu-input-sport" id="TypeJeu-input-sport">
+                        <br><br>
+                        
+                        <button id="create-sport-button">Ajouter</button>
+                        <button id="hide-Form-create-sport-button">Annuler</button>
+                        <span id="form-error-sport" style="color:red;"></span>
+
+                    </fieldset>
+                <div>
+            `;
+            $('#create-sport-container').replaceWith(html);
+            $('#hide-Form-create-sport-button').click(()=>{
+                addCreateSport(); 
+            });
+
+            $('#create-sport-button').click(()=>{
+                sendSport(sports);
+            });
+
+        });
+        
+    });
+}
+
+
+function sendSport(sports){
+    TypeJeu= $('#TypeJeu-input-sport').val().trim();
+    if(TypeJeu==""){
+        $('#form-error-sport').text('*Veuillez entrer le nom de sport');
+    }
+    else if(sports.includes(TypeJeu)){
+        $('#form-error-sport').text('*Ce sport existe déjà');
+    }
+    else{
+        $('#form-error-sport').text('');
+        myAjax('insertSport',{'TypeJeu':TypeJeu},(response)=>{
+            if(response['class']=="succes"){
+                addCreateSport();  //on peut aussi afficher un message pour dire que l'evenement a été bien créé
+            }else{
+                $('#form-error-sport').text(`*${response['message']}`);
+
+            }
+        });  
+    }    
     
 }

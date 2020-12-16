@@ -172,7 +172,7 @@ Insert into Sport values ('Basket-ball');
 
 -- INSERTION Evenement
 
-Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','encours');
+Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','bientot');
 Insert into Evenement values (null,'SeriesTournois3','Nice','2020-12-10','Basket-ball',3,'BlackMamba','bientot');
 
 -- INSERTION TournoiS
@@ -316,6 +316,15 @@ Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+Insert into Terrain values(null,"Football");
+
 Insert into Terrain values(null,"Basket-ball");
 
 -- INSERTION Poule

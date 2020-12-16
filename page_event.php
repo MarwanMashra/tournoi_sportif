@@ -1,8 +1,8 @@
 <?php
 	ini_set('display_errors',1);
 	error_reporting(E_ALL);
-	session_start();
-	if(! isset($_SESSION['login'])){
+    session_start();
+    if(! isset($_SESSION['login'])){
 		header('Location:page_home.php');
 	}
 	
@@ -14,8 +14,6 @@
 	<title>projet</title>
 	<meta charset="utf-8">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<link href="daterangepicker.css" rel="stylesheet" type="text/css" />
-	<link href="editer.css" rel="stylesheet" type="text/css" />
 	<link href="bootstrap_listItem.css" rel="stylesheet" type="text/css" />
 	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" integrity="sha512-oc9+XSs1H243/FRN9Rw62Fn8EtxjEYWHXRvjS43YtueEewbS6ObfXcJNyohjHqVKFPoXXUxwc+q1K7Dee6vv9g==" crossorigin="anonymous" /> -->
 
@@ -28,7 +26,6 @@
       	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 		<script src="var_global.js"></script>
 		<script src="fonctions.js"></script>
-	  	<script src="HandleTournoi.js"></script>
-		<script src="editer.js"></script>
+	  	<script src="start_event.js"></script>
 </body>
 </html>

@@ -137,30 +137,73 @@ function displayEvents(listEvents){
     html=`<div id="events-container">`;
     
     $.each(Events,(IdEvenement,listTournoi)=>{
+        buttonDemarer="";
+        if(login!=null && listTournoi[0]['Statue']!="termine"){
+            buttonDemarer=`<a href="page_event.php?id=${listTournoi[0]['IdEvenement']}" target="_blank"><button>Paramètres</button></a>`;
+        }
+        
         html+=`
-            <p><b>${listTournoi[0]['NomEvenement']}</b> (<i>${listTournoi[0]['Statue']}</i>)</p>
-            <div class="accordion">
+            <div class="event">
+                    <b>${listTournoi[0]['NomEvenement']}</b> &nbsp&nbsp&nbsp&nbsp
+                    ${buttonDemarer}
+                    <br>${getStatueDesc(listTournoi[0]['Statue'])}
+                    <br>Lieu: ${listTournoi[0]['LieuEvenement']}
+                    <br>Date: ${listTournoi[0]['DateEvenement']}
+                    <br>Jeu: ${listTournoi[0]['TypeJeu']}
+                    
+
+                <div class="accordion">
         `;
         $.each(listTournoi,(index,tournoi)=>{
+            console.log(tournoi)
+            buttonEditer="";
+            if(login!=null) {
+                buttonEditer=`<a href="page_editer.php?id=${tournoi['IdTournoi']}" target="_blank"><button >Editer</button></a>`; 
+            }
+            buttonResult="";
+            if(listTournoi[0]['Statue']!="bientot"){
+                buttonResult=`<a href="page_result.php?id=${tournoi['IdTournoi']}" target="_blank"><button>Résultats</button></a>`;
+            }
+            buttonInscription="";
+            if(listTournoi[0]['Statue']=="bientot"){
+                buttonInscription=`<a href="formulaire_equipe.php?id=${tournoi['IdTournoi']}" target="_blank"><button >S'inscrire</button></a>`;
+            }
+            
             html+=`
                 <h3>Tournoi ${tournoi['Categorie']}</h3>
                 <div>
                     Bonjoue, ceci est un tournoi 
                     <br>
-                    <a href="formulaire_equipe.php?id=${tournoi['IdTournoi']}" target="_blank"><button >S'inscrire</button></a>
+                    ${buttonInscription}
+                    ${buttonEditer}
+                    ${buttonResult}
             `;
-            if(login!=null) {
-                html+=`
-                    <a href="page_editer.php?id=${tournoi['IdTournoi']}" target="_blank"><button >Editer</button></a>
-                `; 
-            }
+            
             html+=`
                 </div>
             `;
         });
-        html+=`</div>`;
+        html+=`</div></div>`;
     });
     html+=`</div>`;
     $('#events-container').replaceWith(html);
     $('.accordion').accordion({active: false,collapsible: true, heightStyle: 'content'});
+}
+
+function getStatueDesc(statue) {
+    switch (statue) {
+        case "bientot":
+            return "Cet événement n'a pas encore commencé";
+            break;
+        case "encours":
+            return "Cet événement est actuellement encours ";
+            break;
+        case "termine":
+            return "Cet événement a déjà terminé ";
+            break;
+        default:
+            return "";
+            break;
+    }
+    
 }

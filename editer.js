@@ -39,6 +39,7 @@ $( document ).ready(function() {
             </h1>
             ${button}
             <a href="page_home.php"><button>Page d'accueil</button></a>
+            <a href="page_event.php?id=${Tournois['thisTournoi']['IdEvenement']}"><button>Paramètres événement</button></a>
         `;
         $('body').append(title);
 
@@ -52,6 +53,7 @@ $( document ).ready(function() {
             else if(lastTour!=null && lastTour['NomTour']=='Final'){       //le tournoi a terminé
                 //il faut une redirection vers la page des résultats
                 $('body').append('<h1>Le tournoi a terminé</h1>');   
+                $('body').append(`<a href="page_result.php?id=${idTournoi}"><button>Regarder le classement</button></a>`);
             }
             else{              //il faut encore créer un tour
                 let needConsultante= (Tournois['otherTournoi']==null);
@@ -64,7 +66,7 @@ $( document ).ready(function() {
 });
 
 function EditResultTour(){
-    myAjax('getResultByIdTournoi',{'IdTour':IdTour},(listResult)=>{
+    myAjax('getResultByIdTour',{'IdTour':IdTour},(listResult)=>{
         let listResultPoule={};
         $.each(listResult, (index,result)=>{         //on va grouper par l'id de poule
             // console.log(result);

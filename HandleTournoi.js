@@ -38,28 +38,35 @@ function HandleTournoi(idT,_lastTour,_needConsultante){
     myAjax('getFreeTerrain',{'idTournoi':idTournoi},(listTerrain)=>{
         Terrains= listTerrain;
         if(lastTour==null){                   //c'est le premier tour du tournoi
+
+            $('body').append('<button id="start-tournoi">Démarrer le tournoi</button>');
+            $('#start-tournoi').click(()=>{
+                $('#start-tournoi').remove();
+
+                myAjax('getEquipeByIdTournoi',{'idTournoi':idTournoi},(listEquipe)=>{
+                    console.log(listEquipe);
+                    let listEquipePoule=[];
+                    for(let i=1;i<=5;i++){
+                        $.each(listEquipe, (index,equipe)=>{
+                            if(equipe['NiveauEquipe']==i){
+                                listEquipePoule.push(equipe);
+                            }
+                        });
+                    }
+    
+                    Equipes= listEquipePoule;
+    
+                    let nbEquipe= Equipes.length;
+                    if(nbEquipe<4 && nbEquipe>1)   //final (un des cas possible)
+                        tourFinal();
+    
+                    else
+                        genAllCombPoule();
+                    
+                });
+            })
             
-            myAjax('getEquipeByIdTournoi',{'idTournoi':idTournoi},(listEquipe)=>{
-                console.log(listEquipe);
-                let listEquipePoule=[];
-                for(let i=1;i<=5;i++){
-                    $.each(listEquipe, (index,equipe)=>{
-                        if(equipe['NiveauEquipe']==i){
-                            listEquipePoule.push(equipe);
-                        }
-                    });
-                }
-
-                Equipes= listEquipePoule;
-
-                let nbEquipe= Equipes.length;
-                if(nbEquipe<4 && nbEquipe>1)   //final (un des cas possible)
-                    tourFinal();
-
-                else
-                    genAllCombPoule();
-                
-            });
+            
 
         }
         else{    //il y avait un ancien tour, il faut chercher ses résultats
@@ -68,7 +75,7 @@ function HandleTournoi(idT,_lastTour,_needConsultante){
                 haveTournoiConsultante= true;
             }
 
-            myAjax('getResultByIdTournoi',{'IdTour':lastTour['IdTour']},(listResult)=>{
+            myAjax('getResultByIdTour',{'IdTour':lastTour['IdTour']},(listResult)=>{
                
                 if(listResult.length==4){    //c'était le demi-final, mtn c le final
                     Equipes=listResult;
@@ -78,6 +85,7 @@ function HandleTournoi(idT,_lastTour,_needConsultante){
                     res= getEquipeQualifie(listResult)
                     Equipes= res['listEquieQualifie'];   //cette fonction va aussi créer le tournoi consaltante si haveTournoiConsultante== true
                     listEquipeConsaltante= res['listEquipeConsaltante'];
+                
                     if(listEquipeConsaltante.length >1 && haveTournoiConsultante && needConsultante){
                         createTournoiConsultante(listEquipeConsaltante);
                     }
@@ -478,7 +486,7 @@ function tourFinal(){
     console.log(params)
     myAjax('insertTour',params,(response)=>{
         if(response['class']=='succes'){
-            // location.reload();
+            location.reload();
         }
         else{
             $('#error-tour').text(response['message']);

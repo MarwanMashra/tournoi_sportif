@@ -7,6 +7,8 @@
     if (isset($_POST['function']) && $_POST['function'] != '')
     {   
         echo $_POST['function']($pdo,$_POST['params']);
+        $pdo=null;
+
     }
 
     function f($params){
@@ -251,7 +253,7 @@
         }      
     }
 
-    function getResultByIdTournoi($pdo,$params){
+    function getResultByIdTour($pdo,$params){
         $q_result= $pdo->prepare('SELECT * from Tour T join Poule P on P.IdTour=T.IdTour join Joue J on J.IdPoule=P.IdPoule
                                 join Equipe E on E.IdEquipe=J.IdEquipe where T.IdTour=? order by P.IdPoule,J.NbMatch DESC,J.NbSet DESC,J.NbPoint DESC;');
         $q_result->execute(array($params['IdTour']));
@@ -300,14 +302,26 @@
     }
 
     function endTour($pdo,$params){
-        $q_endTour= $pdo->prepare("UPDATE Tour SET Statue='termine' where IdTour=?;");
-        $succes= $q_endTour->execute(array($params['IdTour']));
-        if($succes){
+        try{   //je démarre une transaction
+                
+            $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+            
+            $q_endTour= $pdo->prepare("UPDATE Tour SET Statue='termine' where IdTour=?;");
+            $q_endTour->execute(array($params['IdTour']));
+
+            $q_libreTerrain= $pdo->prepare("UPDATE Poule SET NumTerrain=null where IdTour=?;");
+            $q_libreTerrain->execute(array($params['IdTour']));
+
+            $pdo->commit();
             return json_encode(array('message'=>"Le tour a terminé",'class'=>"succes"));
+
         }
-        else{
+        catch(PDOException $e){
+            $pdo->rollBack();
             return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
         }
+    
     }
 
     function CheckTypeTournoi($pdo,$params){
@@ -363,6 +377,140 @@
             return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
         }
     }
+    
+    function insertTerrain($pdo,$params){
+        $q_terrain= $pdo->prepare("INSERT into Terrain values (null,?) ;");
+        $good= $q_terrain->execute(array($params['TypeJeu']));
+        if($good){
+            return json_encode(array('message'=>"Le terrain a bien été ajouté ",'class'=>"succes"));
+        }
+        else{
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
+    }
+
+    function insertSport($pdo,$params){
+        $TypeJeu= $params['TypeJeu'];
+        $q_sport= $pdo->prepare("SELECT * from Sport where TypeJeu=?;");  //un seul encours, pas plus
+        $q_sport->execute(array($TypeJeu));
+        if($q_sport->rowCount()==1){
+            return json_encode(array('message'=>"*Ce sport existe déjà",'class'=>"error"));
+        }
+
+        $q_sport_insert= $pdo->prepare("INSERT into Sport values (?) ;");
+        $good= $q_sport_insert->execute(array($TypeJeu));
+        if($good){
+            return json_encode(array('message'=>"Le sport a bien été ajouté ",'class'=>"succes"));
+        }
+        else{
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
+    }
+
+    function getEventParam($pdo,$params){
+        $q_event=$pdo->prepare('SELECT * from Evenement E join Tournoi T on T.IdEvenement=E.IdEvenement join Equipe Ep on
+                                Ep.IdTournoi=T.IdTournoi where E.IdEvenement=?');
+        $q_event->execute(array($params['IdEvenement']));
+        $res = array();
+        foreach($q_event as $row){
+            $res[] = $row;
+        }
+        return json_encode($res);
+    }
+
+    function validerEquipe($pdo,$params){
+        $IdEquipe= $params['IdEquipe'];
+        $q_valide= $pdo->prepare("UPDATE Equipe SET InscriptionValidee=true where IdEquipe=?;");  //un seul encours, pas plus
+        $good= $q_valide->execute(array($IdEquipe));
+
+        if($good){
+            return json_encode(array('message'=>"L'inscription de l'équipe a bien été validé ",'class'=>"succes"));
+        }
+        else{
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
+    }
+
+    function startEvent($pdo,$params){
+        $IdEvenement= $params['IdEvenement'];
+        try{   //je démarre une transaction
+                
+            $pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+            $pdo->beginTransaction();
+            
+            
+            $q_start= $pdo->prepare("UPDATE Evenement SET Statue='encours' where IdEvenement=?;");
+            $q_start->execute(array($IdEvenement));
+
+            $q_delete= $pdo->prepare("DELETE from Equipe where InscriptionValidee=false and IdTournoi in
+                                        (SELECT IdTournoi from Tournoi where IdEvenement=?);");
+            $q_delete->execute(array($IdEvenement));
+
+            $q_tournoi= $pdo->prepare('SELECT * FROM Tournoi WHERE IdEvenement=?;');
+            $q_tournoi->execute(array($IdEvenement));
+
+            $listTournoi=array();
+            foreach($q_tournoi as $row){
+                $listTournoi[]= $row;
+            }
+            
+            $pdo->commit();
+            return json_encode(array('message'=>"L'événement a démarré ",'class'=>"succes",'listTournoi'=>$listTournoi));
+
+        }
+        catch(PDOException $e){
+            $pdo->rollBack();
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
+    }
+
+    function getResultByIdTournoi($pdo,$params){
+        $q_result= $pdo->prepare("SELECT E.IdEquipe,E.NomEquipe,E.NiveauEquipe,
+                                    E.NomClub,E.IdTournoi,sum(NbMatch) as totalNbMatch,sum(NbSet) as totalNbSet,
+                                    sum(NbPoint) as totalNbPoint from Tournoi Tn join Tour Tr on Tr.IdTournoi=Tn.IdTournoi join Poule P 
+                                    on P.IdTour=Tr.IdTour join Joue J on J.IdPoule=P.IdPoule join Equipe E on E.IdEquipe=J.IdEquipe 
+                                    where E.IdTournoi=? and E.InscriptionValidee=true and Tr.Statue<>'bientot' group by 
+                                    E.IdEquipe,E.NomEquipe,E.NiveauEquipe,E.NomClub,E.IdTournoi 
+                                    order by totalNbMatch DESC,totalNbSet DESC,totalNbPoint DESC;");
+        $q_result->execute(array($params['IdTournoi']));
+
+        $res = array();
+        foreach($q_result as $row){
+            $res[] = $row;
+        }
+        return json_encode($res);
+        
+    }
+
+    function endEvent($pdo,$params){
+        $q_end= $pdo->prepare("UPDATE Evenement SET Statue='termine' where IdEvenement=? ;");
+        $good= $q_end->execute(array($params['IdEvenement']));
+        if($good){
+            return json_encode(array('message'=>"Le terrain a bien été ajouté ",'class'=>"succes"));
+        }
+        else{
+            return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
+        }
+    }
+
+    // function getResultByIdTournoi($pdo,$params){
+    //     $q_result= $pdo->prepare("SELECT Tr.IdTour,Tr.NomTour,Tr.NumTour,Tr.Statue,E.IdEquipe,E.NomEquipe,E.NiveauEquipe,
+    //                                 E.NomClub,E.IdTournoi,sum(NbMatch) as totalNbMatch,sum(NbSet) as totalNbSet,
+    //                                 sum(NbPoint) as totalNbPoint from Tournoi Tn join Tour Tr on Tr.IdTournoi=Tn.IdTournoi join Poule P 
+    //                                 on P.IdTour=Tr.IdTour join Joue J on J.IdPoule=P.IdPoule join Equipe E on E.IdEquipe=J.IdEquipe 
+    //                                 where E.IdTournoi=? and E.InscriptionValidee=true and Tr.Statue<>'bientot' group by 
+    //                                 Tr.IdTour,Tr.NomTour,Tr.NumTour,Tr.Statue,E.IdEquipe,E.NomEquipe,E.NiveauEquipe,E.NomClub,E.IdTournoi 
+    //                                 order by Tr.NumTour DESC,totalNbMatch DESC,totalNbSet DESC,totalNbPoint DESC;");
+    //     $q_result->execute(array($params['IdTournoi']));
+
+    //     $res = array();
+    //     foreach($q_result as $row){
+    //         $res[] = $row;
+    //     }
+    //     return json_encode($res);
+        
+    // }
+
 // return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error"));
 // return json_encode(array('message'=>"Un problàme s'est prooduit",'class'=>"error",'error'=>$e->getMessage(),'trace'=>$e->getTrace()));
 ?>

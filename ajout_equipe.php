@@ -85,8 +85,10 @@
             }
             
         }
+
     }
 
+    $pdo=null;
 
     function divUp($a,$b){
         if ($a%$b!=0) {
