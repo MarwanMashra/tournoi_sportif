@@ -1,26 +1,15 @@
 
---	Organisateur (Pseudo, NomOrganisateur, PrenomOrganisateur, Mdp) 
---	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur,Statue)
---	Tournoi (IdTournoi, Categorie,TypeTournoi, IdEvenement)  
---	Equipe (IdEquipe, NomEquipe, NiveauEquipe, NomClub, IdTournoi,InscriptionValidee) 
---	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, IdEquipe)
---	Tour (IdTour, NomTour, NumTour, Statue, IdTournoi) 
---	Poule (IdPoule, NomPoule, IdTour, NumTerrain) 
---	Terrain (NumTerrain, TypeJeu)
---	Joue (IdPoule, IdEquipe, NbMatch, NbSet, NbPoint) 
---	Sport(TypeJeu)
+/*
+FIchier : Test_GroupeA.sql
+Auteurs : 
+Pierre Dupont 2019334455
+Paul Dupond 2019335629
+Nom du groupe : A
+*/
 
-
--- trigger:
--- les evenement passé doivent être supprimés
--- quand un tour termine, ses poules auront un terrain null
--- quand un evemenet commence, les equipes inscrits dans ses tournois qui n'ont pas validé leur inscription seront supprimer
--- 
--- 
--- 
--- 
--- 
-
+drop database if exists BDMASHRACAO;
+create database BDMASHRACAO;
+use BDMASHRACAO;
 
 drop table if exists Joue;
 drop table if exists Poule;
@@ -155,6 +144,100 @@ create table Joue(
 
 
 
+DROP TRIGGER IF EXISTS Equipe_Inscription_Annulee;
+DELIMITER $$
+CREATE TRIGGER Equipe_Inscription_Annulee
+    AFTER UPDATE ON Evenement
+    FOR EACH ROW 
+BEGIN    
+    IF NEW.Statue = 'encours' THEN
+        delete from Equipe where InscriptionValidee=false and IdTournoi in 
+            (select IdTournoi from Tournoi where IdEvenement=NEW.IdEvenement);
+    END IF;
+END $$
+DELIMITER ;
+
+
+DROP TRIGGER IF EXISTS Liberer_Terrain;
+DELIMITER $$
+CREATE TRIGGER Liberer_Terrain
+    AFTER UPDATE ON Tour
+    FOR EACH ROW 
+BEGIN    
+    IF NEW.Statue = 'termine' THEN
+        update Poule set NumTerrain=null where IdTour=NEW.IdTour;
+    END IF;
+END $$
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS remove_canceled_evenement;
+DELIMITER $$
+CREATE PROCEDURE remove_canceled_evenement ()
+MODIFIES SQL DATA
+BEGIN
+    delete from Evenement where Statue='bientot' and DateEvenement<NOW();
+END$$
+DELIMITER ;
+
+-- DELIMITER $$
+-- CREATE TRIGGER Equipe_Inscription_Annulee
+--     AFTER UPDATE ON Evenement
+--     FOR EACH ROW 
+-- BEGIN    
+--     DECLARE idE int;
+--     DECLARE IdEquipe_cursor CURSOR FOR SELECT IdEquipe FROM Equipe where InscriptionValidee=false;
+--     IF NEW.Statue = 'encours' THEN
+--         OPEN IdEquipe_cursor;
+--         equipe_loop: LOOP
+--             FETCH IdEquipe_cursor INTO idE; 
+--             delete from Equipe where IdEquipe=idE;
+--         END LOOP;
+--         CLOSE IdEquipe_cursor;
+--     END IF;
+-- END $$
+-- DELIMITER ;
+
+
+-- DELIMITER $$
+-- CREATE TRIGGER Equipe_Inscription_Annulee
+--     AFTER UPDATE ON Evenement
+--     FOR EACH ROW 
+-- BEGIN    
+
+--     IF NEW.Statue = 'encours' THEN
+--         delete from Equipe where InscriptionValidee=false and IdTournoi in 
+--             (select IdTournoi from Tournoi where IdEvenement=NEW.IdEvenement);
+--     END IF;
+-- END $$
+-- DELIMITER ;
+
+-- DECLARE IdEquipe_cursor CURSOR FOR SELECT IdEquipe FROM Equipe where InscriptionValidee=false and IdTournoi in 
+--         (SELECT IdTournoi from Tournoi where IdEvenement=NEW.Statue);
+    
+--     IF NEW.Statue = 'encours' THEN
+--         #SET MESSAGE_ERROR=CONCAT()
+--         INSERT INTO LOGERROR(MESSAGE) VALUES ("ERREUR AVION DANS VILLE DIFFERENTE");
+--         SIGNAL SQLSTATE VALUE '45000' SET MESSAGE_TEXT ="LES VOLS DOIVENT UTILISER DES AVIONS LOCALISES DANS LA MEME VILLE QUE LA VILLE DE DEPART";
+--     END IF;
+
+/* 
+Trigger pour garantir qu'un salaire est supérieur à 0
+*/
+
+
+
+-- DROP TRIGGER IF EXISTS ATTENTION_SALAIRE
+-- DELIMITER $$
+-- CREATE TRIGGER ATTENTION_SALAIRE
+-- BEFORE INSERT on pilote
+-- FOR EACH ROW BEGIN 
+-- IF NEW.SAL=0 THEN
+--     INSERT INTO LOGERROR(MESSAGE) VALUES (CONCAT("ATTENTION, LE SALAIRE DOIT ETRE SUPERIEUR A 0"));
+--     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'LE SALAIRE DOIT ËTRE SUPERIEUR A 0';
+-- END IF; 
+-- END; $$
+
 
 
 -- INSERTION Organisateur
@@ -172,8 +255,8 @@ Insert into Sport values ('Basket-ball');
 
 -- INSERTION Evenement
 
-Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','bientot');
-Insert into Evenement values (null,'SeriesTournois3','Nice','2020-12-10','Basket-ball',3,'BlackMamba','bientot');
+Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','encours');
+Insert into Evenement values (null,'SeriesTournois3','Nice','2021-12-10','Basket-ball',3,'BlackMamba','bientot');
 
 -- INSERTION TournoiS
 
@@ -193,7 +276,6 @@ Insert into Equipe values(null,'REAL1',1,'Real Madrid',1,true);
 Insert into Equipe values(null,'PSG2',4,'Paris-St-Germain',1,true);
 Insert into Equipe values(null,'OM2',2,'Olympique-de-Marseille',1,true);
 Insert into Equipe values(null,'OL2',2,'Olympique-Lyonnais',1,true);
-
 
 
 -- Insert into Equipe values(null,'PSG1',4,'Paris-St-Germain',1,true);
@@ -323,7 +405,6 @@ Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
 Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
 
 Insert into Terrain values(null,"Basket-ball");
 
@@ -355,3 +436,30 @@ Insert into Terrain values(null,"Basket-ball");
 -- INSERT into Joue values(4,14,2,1,2);
 -- INSERT into Joue values(4,15,1,1,103);
 -- INSERT into Joue values(4,16,1,1,97);
+
+
+--	Organisateur (Pseudo, NomOrganisateur, PrenomOrganisateur, Mdp) 
+--	Evenement (IdEvenement, NomEvenement, LieuEvenement, DateEvenement, TypeJeu, NbJoueur, PseudoOrganisateur,Statue)
+--	Tournoi (IdTournoi, Categorie,TypeTournoi, IdEvenement)  
+--	Equipe (IdEquipe, NomEquipe, NiveauEquipe, NomClub, IdTournoi,InscriptionValidee) 
+--	Joueur (IdJoueur, NomJoueur, PrenomJoueur, NiveauJoueur, IdEquipe)
+--	Tour (IdTour, NomTour, NumTour, Statue, IdTournoi) 
+--	Poule (IdPoule, NomPoule, IdTour, NumTerrain) 
+--	Terrain (NumTerrain, TypeJeu)
+--	Joue (IdPoule, IdEquipe, NbMatch, NbSet, NbPoint) 
+--	Sport(TypeJeu)
+
+
+-- trigger:
+-- les evenement passé doivent être supprimés
+-- quand un tour termine, ses poules auront un terrain null
+-- quand un evemenet commence, les equipes inscrits dans ses tournois qui n'ont pas validé leur inscription seront supprimer
+-- 
+-- 
+-- 
+-- 
+-- 
+
+Insert into Evenement values (null,'Event test','Londre','2020-12-09','Football',3,'MaradonaGod','bientot');
+
+CALL remove_canceled_evenement();
