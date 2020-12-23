@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 2.9.7350 64-bit) (preloaded format=pdflatex 2020.4.15)  22 DEC 2020 21:57
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 2.9.7350 64-bit) (preloaded format=pdflatex 2020.4.15)  23 DEC 2020 15:19
 entering extended mode
-**./rapport_de_stage.tex
-(rapport_de_stage.tex
+**./rapport_GroupeH.tex
+(rapport_GroupeH.tex
 LaTeX2e <2020-02-02> patch level 5
 L3 programming layer <2020-03-06>
 ("C:\Program Files\MiKTeX 2.9\tex/latex/base\report.cls"
@@ -791,8 +791,8 @@ Package: pgfopts 2014/07/10 v2.1a LaTeX package options with pgfkeys
 \pgfopts@list@add@a@toks=\toks46
 \pgfopts@list@add@b@toks=\toks47
 )
-(rapport_de_stage.aux)
-\openout1 = `rapport_de_stage.aux'.
+(rapport_GroupeH.aux)
+\openout1 = `rapport_GroupeH.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 59.
 LaTeX Font Info:    ... okay on input line 59.
@@ -857,9 +857,9 @@ Package pdftex.def Info: src/logo_fds.png  used on input line 90.
 [1
 
 {C:/Users/Marwa/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map} <./src/logo_
-um.png> <./src/logo_fds.png>] (rapport_de_stage.toc)
+um.png> <./src/logo_fds.png>] (rapport_GroupeH.toc)
 \tf@toc=\write4
-\openout4 = `rapport_de_stage.toc'.
+\openout4 = `rapport_GroupeH.toc'.
 
  [1
 
@@ -935,28 +935,27 @@ Overfull \hbox (229.89824pt too wide) in paragraph at lines 274--275
 
 
 AED: lastpage setting LastPage
-[8 <./src/procedure.png> <./src/event.png>] (rapport_de_stage.aux) ) 
+[8 <./src/procedure.png> <./src/event.png>] (rapport_GroupeH.aux) ) 
 Here is how much of TeX's memory you used:
  27991 strings out of 480934
- 684030 string characters out of 2909682
- 1080686 words of memory out of 3000000
+ 684096 string characters out of 2909682
+ 1080683 words of memory out of 3000000
  43372 multiletter control sequences out of 15000+200000
  544752 words of font info for 50 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 68i,11n,98p,762b,609s stack positions out of 5000i,500n,10000p,200000b,50000s
- <C:\Users\
-Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> 
-<C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecb
-x1440.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/
-dpi600\ecrm1200.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jk
-nappen/ec/dpi600\ecbx1200.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk
-/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.
-9\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk> <C:\Users\Marwa\AppData\Local
-\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk> <C:\Users\Marwa\App
-Data\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users
-\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
-
-Output written on rapport_de_stage.pdf (9 pages, 680275 bytes).
+ 68i,11n,98p,761b,609s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\M
+arwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <
+C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx
+1440.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/d
+pi600\ecrm1200.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jkn
+appen/ec/dpi600\ecbx1200.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/
+ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\Marwa\AppData\Local\MiKTeX\2.9
+\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk> <C:\Users\Marwa\AppData\Local\
+MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk> <C:\Users\Marwa\AppD
+ata\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> <C:\Users\
+Marwa\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1728.pk>
+Output written on rapport_GroupeH.pdf (9 pages, 680275 bytes).
 PDF statistics:
  359 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
