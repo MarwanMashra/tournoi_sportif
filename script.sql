@@ -7,9 +7,9 @@ Paul Dupond 2019335629
 Nom du groupe : A
 */
 
-drop database if exists BDMASHRACAO;
-create database BDMASHRACAO;
-use BDMASHRACAO;
+-- drop database if exists BDMASHRACAO;
+-- create database BDMASHRACAO;
+-- use BDMASHRACAO;
 
 drop table if exists Joue;
 drop table if exists Poule;
@@ -123,7 +123,8 @@ create table Poule(
     constraint FK_Poule_Tour foreign key(IdTour) 
         references Tour(IdTour) on delete cascade, 
     constraint FK_Poule_Terrain foreign key(NumTerrain) 
-        references Terrain(NumTerrain) on delete cascade
+        references Terrain(NumTerrain) on delete cascade,
+    CONSTRAINT UNIQUE_Poule_NumTerrain UNIQUE(NumTerrain)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create table Joue(
@@ -171,15 +172,69 @@ END $$
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS remove_canceled_evenement;
+DROP PROCEDURE IF EXISTS Remove_Old_Event;
 DELIMITER $$
-CREATE PROCEDURE remove_canceled_evenement ()
+CREATE PROCEDURE Remove_Old_Event ()
 MODIFIES SQL DATA
 BEGIN
-    delete from Evenement where Statue='bientot' and DateEvenement<NOW();
+    DELETE FROM Evenement WHERE Statue='bientot' AND DateEvenement<NOW();
 END$$
 DELIMITER ;
 
+
+DROP EVENT IF EXISTS Daily_Remove_Old_Event;
+DELIMITER $$
+CREATE EVENT Daily_Remove_Old_Event 
+ON SCHEDULE EVERY 1 DAY
+COMMENT "Suppression quotidienne des anciens événements qui n'ont pas eu lieu" 
+DO
+BEGIN
+    CALL Remove_Old_Event();
+END$$
+DELIMITER ;
+
+
+DROP FUNCTION IF EXISTS Get_Classement;
+DELIMITER $$
+CREATE FUNCTION Get_Classement (idE INT)
+RETURNS NUMERIC(3,0)
+DETERMINISTIC
+READS SQL DATA
+BEGIN
+    DECLARE finished INTEGER DEFAULT 0;
+    DECLARE cpt NUMERIC(3,0) DEFAULT 1;
+    DECLARE var_idE INT;
+    DECLARE IdEquipe_cursor CURSOR FOR SELECT E.IdEquipe FROM Tournoi Tn JOIN Tour Tr ON Tr.IdTournoi=Tn.IdTournoi 
+        JOIN Poule P ON P.IdTour=Tr.IdTour JOIN Joue J ON J.IdPoule=P.IdPoule JOIN Equipe E ON E.IdEquipe=J.IdEquipe WHERE 
+        E.IdTournoi=(SELECT IdTournoi FROM Equipe E2 WHERE E2.IdEquipe=idE) and E.InscriptionValidee=true 
+        GROUP BY E.IdEquipe ORDER BY sum(NbMatch) DESC,sum(NbSet) DESC,sum(NbPoint) DESC;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
+    OPEN IdEquipe_cursor;
+    equipe_loop: LOOP
+        FETCH IdEquipe_cursor INTO var_idE; 
+        IF finished = 1 or var_idE=idE THEN 
+			LEAVE equipe_loop;
+		END IF;
+        SET cpt=cpt+1; 
+    END LOOP;
+    CLOSE IdEquipe_cursor;
+    RETURN (cpt);
+END$$
+DELIMITER ;
+
+-- select Get_Classement(IdEquipe) from Equipe;
+-- DECLARE Classement NUMERIC(3,0);
+    -- DECLARE nbJoue NUMERIC(3,0);
+    -- DECLARE nbM NUMERIC(3,0);
+    -- DECLARE nbS NUMERIC(3,0);
+    -- DECLARE nbP NUMERIC(3,0);
+    -- SELECT count(*) INTO nbJoue,NbMatch INTO nbM,NbSet INTO nbS,NbPoint INTO nbP FROM Joue WHERE IdEquipe=idE;
+    -- IF nbJoue = 0 THEN  
+    --     SET Classement = NULL;
+    -- ELSE 
+    --     SELECT count(*)+1 INTO Classement FROM Equipe WHERE IdTournoi=(SELECT IdTournoi FROM Equipe WHERE IdEquipe=idE)
+    --         AND ;
+    -- END IF;
 -- DELIMITER $$
 -- CREATE TRIGGER Equipe_Inscription_Annulee
 --     AFTER UPDATE ON Evenement
@@ -242,40 +297,40 @@ Trigger pour garantir qu'un salaire est supérieur à 0
 
 -- INSERTION Organisateur
 
-INSERT INTO Organisateur VALUES('sangri','mashra','marwan',SHA1('123456'));
-Insert into Organisateur values('Sokz','DOMY','Andre',SHA1('123'));
-Insert into Organisateur values ('MaradonaGod','Balder','Darius',SHA1('Dadababa1'));
-Insert into Organisateur values ('Gunnix','Hereinstein','Sophie',SHA1('chopinnocturne20'));
-Insert into Organisateur values ('BlackMamba','Bryant','Kobe',SHA1('Lakers4ever'));
+-- INSERT INTO Organisateur VALUES('sangri','mashra','marwan',SHA1('123456'));
+-- Insert into Organisateur values('Sokz','DOMY','Andre',SHA1('123'));
+-- Insert into Organisateur values ('MaradonaGod','Balder','Darius',SHA1('Dadababa1'));
+-- Insert into Organisateur values ('Gunnix','Hereinstein','Sophie',SHA1('chopinnocturne20'));
+-- Insert into Organisateur values ('BlackMamba','Bryant','Kobe',SHA1('Lakers4ever'));
 
 -- INSERTION Sport
 
-Insert into Sport values ('Football');
-Insert into Sport values ('Basket-ball');
+-- Insert into Sport values ('Football');
+-- Insert into Sport values ('Basket-ball');
 
 -- INSERTION Evenement
 
-Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','encours');
-Insert into Evenement values (null,'SeriesTournois3','Nice','2021-12-10','Basket-ball',3,'BlackMamba','bientot');
+-- Insert into Evenement values (null,'Tournois2','Londre','2020-12-09','Football',3,'MaradonaGod','encours');
+-- Insert into Evenement values (null,'SeriesTournois3','Nice','2021-12-10','Basket-ball',3,'BlackMamba','bientot');
 
 -- INSERTION TournoiS
 
-Insert into Tournoi values (null,'Adulte','principal',1);
-Insert into Tournoi values (null,'Adulte','principal',2);
-Insert into Tournoi values (null,'Femme','principal',1);
-Insert into Tournoi values (null,'Femme','principal',2);
+-- Insert into Tournoi values (null,'Adulte','principal',1);
+-- Insert into Tournoi values (null,'Adulte','principal',2);
+-- Insert into Tournoi values (null,'Femme','principal',1);
+-- Insert into Tournoi values (null,'Femme','principal',2);
 
 -- INSERTION Equipe
 
 
-Insert into Equipe values(null,'PSG1',4,'Paris-St-Germain',1,true);
-Insert into Equipe values(null,'OM1',2,'Olympique-de-Marseille',1,true);
-Insert into Equipe values(null,'OL1',2,'Olympique-Lyonnais',1,true);
-Insert into Equipe values(null,'REAL1',1,'Real Madrid',1,true);
+-- Insert into Equipe values(null,'PSG1',4,'Paris-St-Germain',1,true);
+-- Insert into Equipe values(null,'OM1',2,'Olympique-de-Marseille',1,true);
+-- Insert into Equipe values(null,'OL1',2,'Olympique-Lyonnais',1,true);
+-- Insert into Equipe values(null,'REAL1',1,'Real Madrid',1,true);
 
-Insert into Equipe values(null,'PSG2',4,'Paris-St-Germain',1,true);
-Insert into Equipe values(null,'OM2',2,'Olympique-de-Marseille',1,true);
-Insert into Equipe values(null,'OL2',2,'Olympique-Lyonnais',1,true);
+-- Insert into Equipe values(null,'PSG2',4,'Paris-St-Germain',1,true);
+-- Insert into Equipe values(null,'OM2',2,'Olympique-de-Marseille',1,true);
+-- Insert into Equipe values(null,'OL2',2,'Olympique-Lyonnais',1,true);
 
 
 -- Insert into Equipe values(null,'PSG1',4,'Paris-St-Germain',1,true);
@@ -303,28 +358,28 @@ Insert into Equipe values(null,'OL2',2,'Olympique-Lyonnais',1,true);
 
 -- INSERTION Joueur
 
-INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',1);
-INSERT into Joueur values(null,'Mbappé','Kylian','Pro',1);
-INSERT into Joueur values(null,'Köpke','Andreas','Pro',1);
-INSERT into Joueur values(null,'Zinedine','Zidane','Pro',2);
-INSERT into Joueur values(null,'Barthez','Fabien','Pro',2);
-INSERT into Joueur values(null,'Waddle','Chris','Pro',2);
-INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',3);
-INSERT into Joueur values(null,'Gomez','Yohan','Pro',3);
-INSERT into Joueur values(null,'Hartock','Joan','Pro',3);
-INSERT into Joueur values(null,'Vieira','Marcelo','Pro',4);
-INSERT into Joueur values(null,'Lunin','Andriy','Pro',4);
-INSERT into Joueur values(null,'Modric','Luka','Pro',4);
+-- INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',1);
+-- INSERT into Joueur values(null,'Mbappé','Kylian','Pro',1);
+-- INSERT into Joueur values(null,'Köpke','Andreas','Pro',1);
+-- INSERT into Joueur values(null,'Zinedine','Zidane','Pro',2);
+-- INSERT into Joueur values(null,'Barthez','Fabien','Pro',2);
+-- INSERT into Joueur values(null,'Waddle','Chris','Pro',2);
+-- INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',3);
+-- INSERT into Joueur values(null,'Gomez','Yohan','Pro',3);
+-- INSERT into Joueur values(null,'Hartock','Joan','Pro',3);
+-- INSERT into Joueur values(null,'Vieira','Marcelo','Pro',4);
+-- INSERT into Joueur values(null,'Lunin','Andriy','Pro',4);
+-- INSERT into Joueur values(null,'Modric','Luka','Pro',4);
 
-INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',5);
-INSERT into Joueur values(null,'Mbappé','Kylian','Pro',5);
-INSERT into Joueur values(null,'Köpke','Andreas','Pro',5);
-INSERT into Joueur values(null,'Zinedine','Zidane','Pro',6);
-INSERT into Joueur values(null,'Barthez','Fabien','Pro',6);
-INSERT into Joueur values(null,'Waddle','Chris','Pro',6);
-INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',7);
-INSERT into Joueur values(null,'Gomez','Yohan','Pro',7);
-INSERT into Joueur values(null,'Hartock','Joan','Pro',7);
+-- INSERT into Joueur values(null,'Neymar','da Silva Santos Júnior','Pro',5);
+-- INSERT into Joueur values(null,'Mbappé','Kylian','Pro',5);
+-- INSERT into Joueur values(null,'Köpke','Andreas','Pro',5);
+-- INSERT into Joueur values(null,'Zinedine','Zidane','Pro',6);
+-- INSERT into Joueur values(null,'Barthez','Fabien','Pro',6);
+-- INSERT into Joueur values(null,'Waddle','Chris','Pro',6);
+-- INSERT into Joueur values(null,'Pernambucano','Juninho','Pro',7);
+-- INSERT into Joueur values(null,'Gomez','Yohan','Pro',7);
+-- INSERT into Joueur values(null,'Hartock','Joan','Pro',7);
 
 
 -- INSERT into Joueur values(null,'Vieira','Marcelo','Pro',8);
@@ -390,23 +445,23 @@ INSERT into Joueur values(null,'Hartock','Joan','Pro',7);
 
 -- INSERTION Terrain
 
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
-Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
+-- Insert into Terrain values(null,"Football");
 
-Insert into Terrain values(null,"Basket-ball");
+-- Insert into Terrain values(null,"Basket-ball");
 
 -- INSERTION Poule
 
@@ -457,9 +512,10 @@ Insert into Terrain values(null,"Basket-ball");
 -- 
 -- 
 -- 
--- 
--- 
 
-Insert into Evenement values (null,'Event test','Londre','2020-12-09','Football',3,'MaradonaGod','bientot');
+-- SHOW PROCESSLIST;
+-- SHOW EVENTS;
 
-CALL remove_canceled_evenement();
+-- Insert into Evenement values (null,'Event test','Londre','2020-12-09','Football',3,'MaradonaGod','bientot');
+
+-- CALL remove_canceled_evenement();
